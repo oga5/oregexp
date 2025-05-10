@@ -1,0 +1,18 @@
+Perl License Notice for test/perl_re_tests.txt
+
+The test data file perl_re_tests.txt is derived from Perl source code and is 
+subject to the terms of the Perl licensing terms. From the dual-license options,
+we have chosen to use:
+
+The "Artistic License" 
+https://dev.perl.org/licenses/artistic.html
+
+(Note: Perl source code is typically dual-licensed, offering the option of either
+the Artistic License or the GNU General Public License. We have elected to use
+the Artistic License option for the included test data.)
+
+For more information about Perl licensing, please see:
+https://dev.perl.org/licenses/
+
+All other files in this project are licensed under the BSD 2-Clause License
+as specified in the LICENSE file in the root directory.

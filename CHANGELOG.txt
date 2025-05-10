@@ -1,0 +1,29 @@
+
+ver.0.88 (2025/05/10)
+ - GitHub公開準備
+ - BSD 2-Clauseライセンスの適用
+ - テストデータファイル用のライセンス注記追加（Artistic Licenseを選択）
+ - README.mdの作成と機能説明の追加
+ - ロードマップの追加（APIドキュメント、内部実装ドキュメント、Perl拡張機能）
+
+ver.0.87 (2017/06/28)
+ - APIで全角半角を区別しない指定をできるようにした
+   oreg_comp2, oreg_comp_str2, oregexp_lwr2, oregexp_str_lwr2を追加
+
+ver.0.86 (2017/06/15)
+ - アルファベットについて、全角半角に関係なく検索できるようにした
+   (?w)スイッチで有効になる (APIの引数指定は未対応)
+
+ver.0.85 (2017/06/14)
+ - regexp.c check_possessive_captureの実行中にstackがreallocされたとき
+   core dumpする
+ - parser.c make_char_class_from_branch_tblで、未初期化のnode->data.char_class
+   を参照していた
+
+ver.0.84 (2017/06/13)
+ - \Q...\Eの構文をサポート
+ - \x41, \x{0041}の構文をサポート
+
+ver.0.83 (2017/06/12)
+ - 開発環境をbash on windowsに対応
+

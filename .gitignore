@@ -1,0 +1,22 @@
+# オブジェクトファイルとバイナリ
+*.o
+*.a
+regtest
+
+# バックアップファイル
+*.bak
+*~
+
+# エディタの一時ファイル
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# 依存関係/ビルドディレクトリ
+/build/
+/dist/
+
+# OS固有のファイル
+.DS_Store
+Thumbs.db

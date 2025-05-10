@@ -1,0 +1,32 @@
+
+- perl互換テストで、dataとresult_strの\x{100}などは指定された文字コードの文字に置換する
+  (pattern部分は変換しない)
+
+- .X(.+)+Xがとても遅い
+  .X(.+)+X   bbbbXcXaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa  y   $&  bXcX
+  自動強欲変換で高速化できるか？ (結果が変わってしまう？)
+
+- .X(.+)++Xでcore dumpする
+  .X(.+)++X   bbbbXcXaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa  y   $&  bXcX
+
+# 開発ロードマップ
+
+## APIドキュメント
+- oregexp.hで公開されている関数の詳細説明
+- 各APIのパラメータと戻り値の説明
+- サンプルコード
+- 高度な使用方法のサンプル（日本語処理を含む）
+
+## 内部実装ドキュメント
+- 正規表現パターンのパース処理の解説
+- NFAの構築アルゴリズムの説明
+- バックトラッキングの実装詳細
+- 日本語文字コード処理の実装
+
+## Perl拡張機能の実装
+- 名前付きキャプチャグループ (?<name>...)
+- 再帰パターン (?R) と部分パターン参照 (?1)
+- 条件分岐パターン (?(condition)yes-pattern|no-pattern)
+- Unicode属性クラス \p{...} の完全実装
+- 先読み/戻り読み最適化
+
