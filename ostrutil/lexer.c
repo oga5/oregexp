@@ -1,3 +1,11 @@
+/*
+ * Copyright (c) 2025, Atsushi Ogawa
+ * All rights reserved.
+ *
+ * This software is licensed under the BSD 2-Clause License.
+ * See the LICENSE file for details.
+ */
+
 
 #include <string.h>
 #include <assert.h>
@@ -253,7 +261,7 @@ static int make_escape(const TCHAR *p, INT_PTR p_len, LexWord *lex_word)
 	lex_word->data = p;
 	lex_word->len = 1;		// '\'
 
-	p += get_char_len(p);	// '\'‚ðƒXƒLƒbƒv
+	p += get_char_len(p);	// '\'ï¿½ï¿½ï¿½Xï¿½Lï¿½bï¿½v
 	ch = get_char(p);
 
 	if(ch == '=') {
@@ -285,7 +293,7 @@ static int make_escape(const TCHAR *p, INT_PTR p_len, LexWord *lex_word)
 		int bracket_flg = 0;
 
 		(lex_word->len)++;
-		p += get_char_len(p);	// 'g'‚ðƒXƒLƒbƒv
+		p += get_char_len(p);	// 'g'ï¿½ï¿½ï¿½Xï¿½Lï¿½bï¿½v
 		ch = get_char(p);
 
 		if(ch == '{') {

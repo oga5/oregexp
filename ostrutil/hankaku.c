@@ -1,3 +1,11 @@
+/*
+ * Copyright (c) 2025, Atsushi Ogawa
+ * All rights reserved.
+ *
+ * This software is licensed under the BSD 2-Clause License.
+ * See the LICENSE file for details.
+ */
+
 
 #include <string.h>
 #ifdef WIN32
@@ -11,11 +19,11 @@
 static int __HankakuToZenkaku(const TCHAR *str, TCHAR *buf,
 	int b_alpha, int b_kata)
 {
-	static TCHAR* convTbl = _T("ÅBÅuÅvÅAÅEÉíÉ@ÉBÉDÉFÉHÉÉÉÖÉáÉbÅ[ÉAÉCÉEÉGÉIÉJÉLÉNÉPÉRÉTÉVÉXÉZÉ\É^É`ÉcÉeÉgÉiÉjÉkÉlÉmÉnÉqÉtÉwÉzÉ}É~ÉÄÉÅÉÇÉÑÉÜÉàÉâÉäÉãÉåÉçÉèÉìÅJÅK");
-	static TCHAR* pszDakuSet = _T("∂∑∏π∫ªºΩæø¿¡¬√ƒ ÀÃÕŒ");
-	static TCHAR* dakuConvTbl = _T("ÉKÉMÉOÉQÉSÉUÉWÉYÉ[É]É_ÉaÉdÉfÉhÉoÉrÉuÉxÉ{");
-	static TCHAR* pszYouSet = _T(" ÀÃÕŒ");
-	static TCHAR* dakuYouTbl = _T("ÉpÉsÉvÉyÉ|");
+	static TCHAR* convTbl = _T("ÔøΩBÔøΩuÔøΩvÔøΩAÔøΩEÔøΩÔøΩÔøΩ@ÔøΩBÔøΩDÔøΩFÔøΩHÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩbÔøΩ[ÔøΩAÔøΩCÔøΩEÔøΩGÔøΩIÔøΩJÔøΩLÔøΩNÔøΩPÔøΩRÔøΩTÔøΩVÔøΩXÔøΩZÔøΩ\ÔøΩ^ÔøΩ`ÔøΩcÔøΩeÔøΩgÔøΩiÔøΩjÔøΩkÔøΩlÔøΩmÔøΩnÔøΩqÔøΩtÔøΩwÔøΩzÔøΩ}ÔøΩ~ÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩJÔøΩK");
+	static TCHAR* pszDakuSet = _T("ÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩ");
+	static TCHAR* dakuConvTbl = _T("ÔøΩKÔøΩMÔøΩOÔøΩQÔøΩSÔøΩUÔøΩWÔøΩYÔøΩ[ÔøΩ]ÔøΩ_ÔøΩaÔøΩdÔøΩfÔøΩhÔøΩoÔøΩrÔøΩuÔøΩxÔøΩ{");
+	static TCHAR* pszYouSet = _T("ÔøΩÔøΩÔøΩÔøΩÔøΩ");
+	static TCHAR* dakuYouTbl = _T("ÔøΩpÔøΩsÔøΩvÔøΩyÔøΩ|");
 
 	TCHAR *pbuf = buf;
 	TCHAR *cp;
@@ -25,29 +33,29 @@ static int __HankakuToZenkaku(const TCHAR *str, TCHAR *buf,
 	for(; *str != '\0';) {
 		ch = get_char(str);
 
-		// îºäpâpêî
+		// ÔøΩÔøΩÔøΩpÔøΩpÔøΩÔøΩ
 		if(b_alpha && ch >= 0x20 && ch <= 0x7E) {
 			flg = 1;
 			if(ch == ' ') {
-				ch = L'Å@';
+				ch = L'ÔøΩ@';
 			} else if(ch == '\\') {
-				ch = L'Åè';
+				ch = L'ÔøΩÔøΩ';
 			} else if(ch == '~') {
-				ch = L'ÅP';
+				ch = L'ÔøΩP';
 			} else {
 				// '!' - '}'
-				ch += L'ÅI' - L'!';
+				ch += L'ÔøΩI' - L'!';
 			}
 		}
 
-		// îºäpÉJÉ^ÉJÉi
+		// ÔøΩÔøΩÔøΩpÔøΩJÔøΩ^ÔøΩJÔøΩi
 		if(b_kata && ch >= 0xFF61 && ch <= 0xFF9F) {
 			flg = 1;
 
-			if(get_char(str + get_char_len(str)) == L'ﬁ' && (cp = inline_strchr(pszDakuSet, *str)) != NULL) {
+			if(get_char(str + get_char_len(str)) == L'ÔøΩ' && (cp = inline_strchr(pszDakuSet, *str)) != NULL) {
 				ch = dakuConvTbl[cp - pszDakuSet];
 				str += get_char_len(str);
-			} else if(get_char(str + get_char_len(str)) == L'ﬂ' && (cp = inline_strchr(pszYouSet, *str)) != NULL) {
+			} else if(get_char(str + get_char_len(str)) == L'ÔøΩ' && (cp = inline_strchr(pszYouSet, *str)) != NULL) {
 				ch = dakuYouTbl[cp - pszYouSet];
 				str += get_char_len(str);
 			} else {
@@ -63,7 +71,7 @@ static int __HankakuToZenkaku(const TCHAR *str, TCHAR *buf,
 	return flg;
 }
 
-// îºäpï∂éöóÒÇëSäpï∂éöóÒÇ…ïœä∑Ç∑ÇÈ
+// ÔøΩÔøΩÔøΩpÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩSÔøΩpÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩ…ïœäÔøΩÔøΩÔøΩÔøΩÔøΩ
 int HankakuToZenkaku(const TCHAR *str, TCHAR *buf)
 {
 	return __HankakuToZenkaku(str, buf, 1, 1);
@@ -80,16 +88,16 @@ int HankakuToZenkaku2(const TCHAR *str, TCHAR *buf,
 static int __ZenkakuToHankaku(const TCHAR *str, TCHAR *buf,
 	int b_alpha, int b_kata)
 {
-	static TCHAR* zenKataSet = _T("ÅBÅuÅvÅAÅEÉíÉ@ÉBÉDÉFÉHÉÉÉÖÉáÉbÅ[ÉAÉCÉEÉGÉIÉJÉLÉNÉPÉRÉTÉVÉXÉZÉ\É^É`ÉcÉeÉgÉiÉjÉkÉlÉmÉnÉqÉtÉwÉzÉ}É~ÉÄÉÅÉÇÉÑÉÜÉàÉâÉäÉãÉåÉçÉèÉìÅJÅK");
-	static TCHAR* zenKataConvTbl = _T("°¢£§•¶ß®©™´¨≠ÆØ∞±≤≥¥µ∂∑∏π∫ªºΩæø¿¡¬√ƒ≈∆«»… ÀÃÕŒœ–—“”‘’÷◊ÿŸ⁄€‹›ﬁﬂ");
+	static TCHAR* zenKataSet = _T("ÔøΩBÔøΩuÔøΩvÔøΩAÔøΩEÔøΩÔøΩÔøΩ@ÔøΩBÔøΩDÔøΩFÔøΩHÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩbÔøΩ[ÔøΩAÔøΩCÔøΩEÔøΩGÔøΩIÔøΩJÔøΩLÔøΩNÔøΩPÔøΩRÔøΩTÔøΩVÔøΩXÔøΩZÔøΩ\ÔøΩ^ÔøΩ`ÔøΩcÔøΩeÔøΩgÔøΩiÔøΩjÔøΩkÔøΩlÔøΩmÔøΩnÔøΩqÔøΩtÔøΩwÔøΩzÔøΩ}ÔøΩ~ÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩJÔøΩK");
+	static TCHAR* zenKataConvTbl = _T("ÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩ");
 
-	static TCHAR* zenDakuSet = _T("ÉKÉMÉOÉQÉSÉUÉWÉYÉ[É]É_ÉaÉdÉfÉhÉoÉrÉuÉxÉ{");
-	static TCHAR* zenDakuConvTbl = _T("∂∑∏π∫ªºΩæø¿¡¬√ƒ ÀÃÕŒ");
+	static TCHAR* zenDakuSet = _T("ÔøΩKÔøΩMÔøΩOÔøΩQÔøΩSÔøΩUÔøΩWÔøΩYÔøΩ[ÔøΩ]ÔøΩ_ÔøΩaÔøΩdÔøΩfÔøΩhÔøΩoÔøΩrÔøΩuÔøΩxÔøΩ{");
+	static TCHAR* zenDakuConvTbl = _T("ÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩ");
 
-	static TCHAR* zenYouSet = _T("ÉpÉsÉvÉyÉ|");
-	static TCHAR* zenYouConvTbl = _T(" ÀÃÕŒ");
+	static TCHAR* zenYouSet = _T("ÔøΩpÔøΩsÔøΩvÔøΩyÔøΩ|");
+	static TCHAR* zenYouConvTbl = _T("ÔøΩÔøΩÔøΩÔøΩÔøΩ");
 
-	static TCHAR* markSet = _T("Å@ÅèÅPÅhÅfÅe");
+	static TCHAR* markSet = _T("ÔøΩ@ÔøΩÔøΩÔøΩPÔøΩhÔøΩfÔøΩe");
 	static TCHAR* markConvTbl = _T(" \\~\"'`");
 
 	TCHAR *pbuf = buf;
@@ -100,18 +108,18 @@ static int __ZenkakuToHankaku(const TCHAR *str, TCHAR *buf,
 	for(; *str != '\0';) {
 		ch = get_char(str);
 
-		// ëSäpâpêî
+		// ÔøΩSÔøΩpÔøΩpÔøΩÔøΩ
 		if(b_alpha) {
-			if(ch >= L'ÅI' && ch <= L'Åp') {
+			if(ch >= L'ÔøΩI' && ch <= L'ÔøΩp') {
 				flg = 1;
-				ch -= L'ÅI' - L'!';
+				ch -= L'ÔøΩI' - L'!';
 			} else if((cp = inline_strchr(markSet, *str)) != NULL) {
 				flg = 1;
 				ch = markConvTbl[cp - markSet];
 			}
 		}
 
-		// ëSäpÉJÉ^ÉJÉi
+		// ÔøΩSÔøΩpÔøΩJÔøΩ^ÔøΩJÔøΩi
 		if(b_kata) {
 			if((cp = inline_strchr(zenKataSet, *str)) != NULL) {
 				flg = 1;
@@ -120,12 +128,12 @@ static int __ZenkakuToHankaku(const TCHAR *str, TCHAR *buf,
 				flg = 1;
 				ch = zenDakuConvTbl[cp - zenDakuSet];
 				pbuf = put_char(pbuf, ch);
-				ch = L'ﬁ';
+				ch = L'ÔøΩ';
 			} else if((cp = inline_strchr(zenYouSet, *str)) != NULL) {
 				flg = 1;
 				ch = zenYouConvTbl[cp - zenYouSet];
 				pbuf = put_char(pbuf, ch);
-				ch = L'ﬂ';
+				ch = L'ÔøΩ';
 			}
 		}
 
@@ -137,7 +145,7 @@ static int __ZenkakuToHankaku(const TCHAR *str, TCHAR *buf,
 	return flg;
 }
 
-// îºäpï∂éöóÒÇëSäpï∂éöóÒÇ…ïœä∑Ç∑ÇÈ
+// ÔøΩÔøΩÔøΩpÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩSÔøΩpÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩ…ïœäÔøΩÔøΩÔøΩÔøΩÔøΩ
 int ZenkakuToHankaku(const TCHAR *str, TCHAR *buf)
 {
 	return __ZenkakuToHankaku(str, buf, 1, 1);

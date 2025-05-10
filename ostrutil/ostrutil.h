@@ -1,3 +1,10 @@
+/*
+ * Copyright (c) 2025, Atsushi Ogawa
+ * All rights reserved.
+ *
+ * This software is licensed under the BSD 2-Clause License.
+ * See the LICENSE file for details.
+ */
 
 #ifndef OSTRUTIL_INCLUDE
 #define OSTRUTIL_INCLUDE

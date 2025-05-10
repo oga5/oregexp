@@ -6,7 +6,7 @@
  * See the LICENSE file for details.
  */
 
- #ifndef _OSTRUTIL_STR_INLINE_H_INCLUDED_
+#ifndef _OSTRUTIL_STR_INLINE_H_INCLUDED_
 #define _OSTRUTIL_STR_INLINE_H_INCLUDED_
 
 #ifdef WIN32

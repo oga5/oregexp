@@ -1,3 +1,11 @@
+/*
+ * Copyright (c) 2025, Atsushi Ogawa
+ * All rights reserved.
+ *
+ * This software is licensed under the BSD 2-Clause License.
+ * See the LICENSE file for details.
+ */
+
 
 #ifdef  __cplusplus
 extern "C" {
@@ -11,11 +19,11 @@ extern "C" {
 
 #include <tchar.h>
 
-#define LARGE_A			L'Ç`'
-#define LARGE_Z			L'Çy'
-#define SMALL_A			L'ÇÅ'
-#define SMALL_Z			L'Çö'
-#define ZENKAKU_SPACE	L'Å@'
+#define LARGE_A			L'ÔøΩ`'
+#define LARGE_Z			L'ÔøΩy'
+#define SMALL_A			L'ÔøΩÔøΩ'
+#define SMALL_Z			L'ÔøΩÔøΩ'
+#define ZENKAKU_SPACE	L'ÔøΩ@'
 
 __inline static unsigned int inline_ismblower(unsigned int ch)
 {

@@ -1,3 +1,11 @@
+/*
+ * Copyright (c) 2025, Atsushi Ogawa
+ * All rights reserved.
+ *
+ * This software is licensed under the BSD 2-Clause License.
+ * See the LICENSE file for details.
+ */
+
 
 #ifndef __HANKAKU_H_INCLUDED__
 #define __HANKAKU_H_INCLUDED__

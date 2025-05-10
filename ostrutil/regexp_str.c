@@ -1,4 +1,13 @@
-#include <stdio.h>
+/*
+ * Copyright (c) 2025, Atsushi Ogawa
+ * All rights reserved.
+ *
+ * This software is licensed under the BSD 2-Clause License.
+ * See the LICENSE file for details.
+ */
+
+
+ #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
