@@ -9,16 +9,18 @@ RCC=$(CC)
 LIBRARY=ostrutil/ostrutil.a
 
 PROGRAM1=regtest
+SAMPLES=sample/basic_match sample/capture_groups sample/string_replace sample/callback_replace sample/japanese_text
 
 OBJS1=regtest.o \
 	$(LIBRARY)
 
 GBFILES= $(PROGRAM1) \
 	$(OBJS1) \
+	$(SAMPLES) \
 	core
 
 #
-all: $(PROGRAM1)
+all: $(PROGRAM1) samples
 
 $(LIBRARY): ostrutil/*.c ostrutil/*.h
 	cd ./ostrutil; make
@@ -44,9 +46,27 @@ test: $(PROGRAM1)
 $(PROGRAM1): $(OBJS1)
 	$(ECHO) $(CC) $(LDFLAGS) -o $(PROGRAM1) $(OBJS1) $(LIBRARY)
 
+samples: $(SAMPLES)
+
+sample/basic_match: sample/basic_match.o $(LIBRARY)
+	$(CC) $(LDFLAGS) -o $@ sample/basic_match.o $(LIBRARY) $(LIBS)
+
+sample/capture_groups: sample/capture_groups.o $(LIBRARY)
+	$(CC) $(LDFLAGS) -o $@ sample/capture_groups.o $(LIBRARY) $(LIBS)
+
+sample/string_replace: sample/string_replace.o $(LIBRARY)
+	$(CC) $(LDFLAGS) -o $@ sample/string_replace.o $(LIBRARY) $(LIBS)
+
+sample/callback_replace: sample/callback_replace.o $(LIBRARY)
+	$(CC) $(LDFLAGS) -o $@ sample/callback_replace.o $(LIBRARY) $(LIBS)
+
+sample/japanese_text: sample/japanese_text.o $(LIBRARY)
+	$(CC) $(LDFLAGS) -o $@ sample/japanese_text.o $(LIBRARY) $(LIBS)
+
 clean:
 	cd ./ostrutil; make clean
 	-rm -f $(GBFILES)
+	-rm -f sample/*.o
 
 depend:
 	makedepend --$(CFLAGS) *.c

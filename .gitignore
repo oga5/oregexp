@@ -1,7 +1,13 @@
 # オブジェクトファイルとバイナリ
 *.o
 *.a
+*.exe
 regtest
+sample/basic_match
+sample/capture_groups
+sample/string_replace
+sample/callback_replace
+sample/japanese_text
 
 # バックアップファイル
 *.bak
