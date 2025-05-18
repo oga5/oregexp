@@ -2,10 +2,9 @@
  * Copyright (c) 2025, Atsushi Ogawa
  * All rights reserved.
  *
- * This software is licensed under the BSD 2-Clause License.
- * See the LICENSE file for details.
+ * This software is licensed under the BSD License.
+ * See the LICENSE_BSD file for details.
  */
-
 
 #ifdef  __cplusplus
 extern "C" {
@@ -40,7 +39,7 @@ typedef enum {
 typedef struct lex_word {
 	RegWordType		type;
 	const TCHAR 	*data;
-	int				len;
+	INT_PTR			len;
 } LexWord;
 
 typedef enum {
@@ -163,14 +162,14 @@ typedef struct nfa_node_st {
 	struct nfa_node_st	*next[2];
 
 	/*
-	 * first_test: ï¿½Åï¿½ï¿½ï¿½checkï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ğ§Œä‚·ï¿½ï¿½tï¿½ï¿½ï¿½O
-	 * next[0]ï¿½ï¿½next[1]ï¿½ï¿½ï¿½ï¿½ï¿½Ö‚ï¿½ï¿½é‚±ï¿½Æ‚ï¿½ï¿½oï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Anext[0]ï¿½ï¿½ï¿½ï¿½ï¿½Ç‚ï¿½ï¿½ï¿½
-	 * ï¿½ï¿½ï¿½ï¿½ï¿½É“ï¿½ï¿½Bï¿½Å‚ï¿½ï¿½é‚±ï¿½Æ‚ï¿½ÛØ‚ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ßAï¿½ï¿½ï¿½Ìƒtï¿½ï¿½ï¿½Oï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+	 * first_test: Å‰‚Écheck‚·‚é•ûŒü‚ğ§Œä‚·‚éƒtƒ‰ƒO
+	 * next[0]‚Ænext[1]‚ğ“ü‚ê‘Ö‚¦‚é‚±‚Æ‚ào—ˆ‚»‚¤‚¾‚ªAnext[0]‚ğ‚½‚Ç‚Á‚Ä
+	 * ––”ö‚É“’B‚Å‚«‚é‚±‚Æ‚ğ•ÛØ‚µ‚½‚¢‚½‚ßA‚±‚Ìƒtƒ‰ƒO‚ª‚ ‚é
 	 */
 	char	first_test;
 
 	char	optimized;
-	int		node_id;
+	INT_PTR	node_id;
 } NFA_NODE;
 
 #define ALLOC_BUF_SIZE  (sizeof(NFA_NODE) * 32)
@@ -260,7 +259,7 @@ typedef struct oreg_data_st {
 	int			stack_size;
 
 	int			reg_switch;
-	int			cur_node_id;
+	INT_PTR		cur_node_id;
 } OREG_DATA;
 
 int is_quantifier(unsigned int ch);

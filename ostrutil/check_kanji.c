@@ -2,12 +2,11 @@
  * Copyright (c) 2025, Atsushi Ogawa
  * All rights reserved.
  *
- * This software is licensed under the BSD 2-Clause License.
- * See the LICENSE file for details.
+ * This software is licensed under the BSD License.
+ * See the LICENSE_BSD file for details.
  */
 
-
- #include <stdio.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -110,7 +109,7 @@ static int get_utf8_len_main(const BUF_BYTE *src, int len)
 
 int get_utf8_len(const BUF_BYTE *src)
 {
-	// �o�b�t�@�T�C�Y���\���ɂ���Ɖ���
+	// バッファサイズが十分にあると仮定
 	return get_utf8_len_main(src, 100);
 }
 
@@ -132,41 +131,41 @@ struct _kanji_data_st {
 };
 
 /*
-�� �_ JIS  SJIS EUC  UTF-8  UTF-16 ��
-04 01 2421 829F A4A1 E38181 3041   ��
-04 63 245F 82DD A4DF E381BF 307F   ��
-04 64 2460 82DE A4E0 E38280 3080   ��
-04 83 2473 82F1 A4F3 E38293 3093   ��
-05 01 2521 8340 A5A1 E382A1 30A1   �@
-05 31 253F 835E A5BF E382BF 30BF   �^
-05 32 2540 835F A5C0 E38380 30C0   �_
-05 86 2576 8396 A5F6 E383B6 30F6   ��
+区 点 JIS  SJIS EUC  UTF-8  UTF-16 字
+04 01 2421 829F A4A1 E38181 3041   ぁ
+04 63 245F 82DD A4DF E381BF 307F   み
+04 64 2460 82DE A4E0 E38280 3080   む
+04 83 2473 82F1 A4F3 E38293 3093   ん
+05 01 2521 8340 A5A1 E382A1 30A1   ァ
+05 31 253F 835E A5BF E382BF 30BF   タ
+05 32 2540 835F A5C0 E38380 30C0   ダ
+05 86 2576 8396 A5F6 E383B6 30F6   ヶ
 */
 struct _kanji_data_st _kanji[] = {
-	{ { 0x81, 0x42 }, { 0xa1, 0xa3 }, { 0xe3, 0x80, 0x82 }, 3 }, // �B
-	{ { 0x81, 0x41 }, { 0xa1, 0xa2 }, { 0xe3, 0x80, 0x81 }, 3 }, // �A
-	{ { 0x81, 0x43 }, { 0xa1, 0xa4 }, { 0xef, 0xbc, 0x8c }, 3 }, // �C
-	{ { 0x81, 0x60 }, { 0xa1, 0xc1 }, { 0xe3, 0x80, 0x9c }, 3 }, // �`
-	{ { 0x93, 0xfa }, { 0xc6, 0xfc }, { 0xe6, 0x97, 0xa5 }, 3 }, // ��
-	{ { 0x90, 0x6c }, { 0xbf, 0xcd }, { 0xe4, 0xba, 0xba }, 3 }, // �l
-	{ { 0x88, 0xea }, { 0xb0, 0xec }, { 0xe4, 0xb8, 0x80 }, 3 }, // ��
-	{ { 0x8c, 0xa9 }, { 0xb8, 0xab }, { 0xe8, 0xa6, 0x8b }, 3 }, // ��
-	{ { 0x8e, 0x96 }, { 0xbb, 0xf6 }, { 0xe4, 0xba, 0x8b }, 3 }, // ��
-	{ { 0x96, 0x7b }, { 0xcb, 0xdc }, { 0xe6, 0x9c, 0xac }, 3 }, // �{
-	{ { 0x94, 0x4e }, { 0xc7, 0xaf }, { 0xe5, 0xb9, 0xb4 }, 3 }, // �N
-	{ { 0x8e, 0x9e }, { 0xbb, 0xfe }, { 0xe6, 0x99, 0x82 }, 3 }, // ��
-	{ { 0x95, 0xaa }, { 0xca, 0xac }, { 0xe5, 0x88, 0x86 }, 3 }, // ��
-	{ { 0x91, 0xe5 }, { 0xc2, 0xe7 }, { 0xe5, 0xa4, 0xa7 }, 3 }, // ��
-	{ { 0x8f, 0xac }, { 0xbe, 0xae }, { 0xe5, 0xb0, 0x8f }, 3 }, // ��
-	{ { 0x8f, 0xe3 }, { 0xbe, 0xe5 }, { 0xe4, 0xb8, 0x8a }, 3 }, // ��
-	{ { 0x89, 0xba }, { 0xb2, 0xbc }, { 0xe4, 0xb8, 0x8b }, 3 }, // ��
-	{ { 0x8d, 0x82 }, { 0xb9, 0xe2 }, { 0xe9, 0xab, 0x98 }, 3 }, // ��
-	{ { 0x92, 0xe1 }, { 0xc4, 0xe3 }, { 0xe4, 0xbd, 0x8e }, 3 }, // ��
+	{ { 0x81, 0x42 }, { 0xa1, 0xa3 }, { 0xe3, 0x80, 0x82 }, 3 }, // 。
+	{ { 0x81, 0x41 }, { 0xa1, 0xa2 }, { 0xe3, 0x80, 0x81 }, 3 }, // 、
+	{ { 0x81, 0x43 }, { 0xa1, 0xa4 }, { 0xef, 0xbc, 0x8c }, 3 }, // ，
+	{ { 0x81, 0x60 }, { 0xa1, 0xc1 }, { 0xe3, 0x80, 0x9c }, 3 }, // 〜
+	{ { 0x93, 0xfa }, { 0xc6, 0xfc }, { 0xe6, 0x97, 0xa5 }, 3 }, // 日
+	{ { 0x90, 0x6c }, { 0xbf, 0xcd }, { 0xe4, 0xba, 0xba }, 3 }, // 人
+	{ { 0x88, 0xea }, { 0xb0, 0xec }, { 0xe4, 0xb8, 0x80 }, 3 }, // 一
+	{ { 0x8c, 0xa9 }, { 0xb8, 0xab }, { 0xe8, 0xa6, 0x8b }, 3 }, // 見
+	{ { 0x8e, 0x96 }, { 0xbb, 0xf6 }, { 0xe4, 0xba, 0x8b }, 3 }, // 事
+	{ { 0x96, 0x7b }, { 0xcb, 0xdc }, { 0xe6, 0x9c, 0xac }, 3 }, // 本
+	{ { 0x94, 0x4e }, { 0xc7, 0xaf }, { 0xe5, 0xb9, 0xb4 }, 3 }, // 年
+	{ { 0x8e, 0x9e }, { 0xbb, 0xfe }, { 0xe6, 0x99, 0x82 }, 3 }, // 時
+	{ { 0x95, 0xaa }, { 0xca, 0xac }, { 0xe5, 0x88, 0x86 }, 3 }, // 分
+	{ { 0x91, 0xe5 }, { 0xc2, 0xe7 }, { 0xe5, 0xa4, 0xa7 }, 3 }, // 大
+	{ { 0x8f, 0xac }, { 0xbe, 0xae }, { 0xe5, 0xb0, 0x8f }, 3 }, // 小
+	{ { 0x8f, 0xe3 }, { 0xbe, 0xe5 }, { 0xe4, 0xb8, 0x8a }, 3 }, // 上
+	{ { 0x89, 0xba }, { 0xb2, 0xbc }, { 0xe4, 0xb8, 0x8b }, 3 }, // 下
+	{ { 0x8d, 0x82 }, { 0xb9, 0xe2 }, { 0xe9, 0xab, 0x98 }, 3 }, // 高
+	{ { 0x92, 0xe1 }, { 0xc4, 0xe3 }, { 0xe4, 0xbd, 0x8e }, 3 }, // 低
 	{ { 0x00, 0x00 }, { 0x00, 0x00 }, { 0x00, 0x00, 0x00 }, 0 }  // END
 };
 
-// �o�b�t�@�̐؂�ڂŁA�����ȕ����R�[�h�ɔ��肵�Ă��܂�Ȃ��悤��
-// �o�b�t�@�̖������o�C�g�̓`�F�b�N���Ȃ�
+// バッファの切れ目で、無効な文字コードに判定してしまわないように
+// バッファの末尾数バイトはチェックしない
 #define NO_CHECK_LAST_CHAR_CNT	4
 
 static void _check_sjis(const BUF_BYTE *buf, int len, struct _check_kanji_code_st *k)
@@ -191,7 +190,7 @@ static void _check_sjis(const BUF_BYTE *buf, int len, struct _check_kanji_code_s
 			if(!no_hankana_flg) k->hankana_cnt++;
 			no_hankana_flg = 0;
 
-			// EUC�S�p�J�i�Ȃǂ̉\��������ꍇ�A�_�������炷
+			// EUC全角カナなどの可能性がある場合、点数を減らす
 			if(c1 >= 0xa1 && c1 <= 0xa5) k->hankana_cnt--;
 
 			continue;
@@ -207,7 +206,7 @@ static void _check_sjis(const BUF_BYTE *buf, int len, struct _check_kanji_code_s
 				} else if(c1 == 0x83 && (c2 >= 0x40 && c2 <= 0x96)) {
 					k->katakana_cnt++;
 				} else if(c1 == 0xef && (c2 == 0xbd || c2 == 0xbe)) {
-					// UTF8�̔��p�̉\��������ꍇ�A�J�E���g���Ȃ�
+					// UTF8の半角の可能性がある場合、カウントしない
 					no_hankana_flg = 1;
 				} else {
 					for(i = 0;; i++) {
@@ -392,7 +391,7 @@ static int kanji_code_other(const BUF_BYTE *buf, int len)
 
 static void kanji_code_check_no_utf16(const BUF_BYTE *buf, int len, int *no_utf16_flg)
 {
-	// ASCII���A������ꍇ�AUTF16��ے肷��
+	// ASCIIが連続する場合、UTF16を否定する
 	for(; len > 0; len--, buf++) {
 		BUF_BYTE c1 = *buf;
 		if(c1 < 0x80 && c1 != '\0') {
@@ -409,7 +408,7 @@ static void kanji_code_check_no_utf16(const BUF_BYTE *buf, int len, int *no_utf1
 
 static int kanji_code_jis_unicode_ascii(const BUF_BYTE *buf, int len, int *all_ascii, int no_utf16_flg)
 {
-	// 0x80�ȏ�̏ꍇJIS��ے肷��
+	// 0x80以上の場合JISを否定する
 	int jis_flg = 1;
 	const BUF_BYTE *buf_start = buf;
 	for(; len > 0; len--, buf++) {

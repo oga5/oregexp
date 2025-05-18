@@ -7,7 +7,7 @@ struct lexer_test_st lexer_test_data[] = {
 	{"((aaa)aaa", -1, -1, {LEX_GROUP, "", 0}},	// error case
 	{"(a\\(aa)aaa", -1, 0, {LEX_GROUP, "(a\\(aa)", 7},__LINE__},
 	{"(a\\)aa)aaa", -1, 0, {LEX_GROUP, "(a\\)aa)", 7},__LINE__},
-	{"(テスト)", -1, 0, {LEX_GROUP, "(テスト)", 8},__LINE__},
+	{"(テスト)", -1, 0, {LEX_GROUP, "(テスト)", 11},__LINE__},
 	{"(aa\\)aaa", -1, -1, {LEX_GROUP, "", 0}},	// error case
 	{"(aa\\", -1, -1, {LEX_GROUP, "", 0}},	// error case
 	{"[a-z]aaa", -1, 0, {LEX_CHAR_CLASS, "[a-z]", 5},__LINE__},
@@ -29,7 +29,7 @@ struct lexer_test_st lexer_test_data[] = {
 	{"aaa", -1, 0, {LEX_WORD, "a", 1},__LINE__},
 	{"a*", -1, 0, {LEX_WORD, "a", 1},__LINE__},
 	{"a+", -1, 0, {LEX_WORD, "a", 1},__LINE__},
-	{"テスト\\ta", -1, 0, {LEX_WORD, "テ", 2},__LINE__},
+	{"テスト\\ta", -1, 0, {LEX_WORD, "テ", 3},__LINE__},
 	{"^aaa", -1, 0, {LEX_FIRST_MATCH, "^", 1},__LINE__},
 	{"$", -1, 0, {LEX_LAST_MATCH, "$", 1},__LINE__},
 };

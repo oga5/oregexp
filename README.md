@@ -49,7 +49,7 @@ oregexpは以下のようなPerl5互換の正規表現機能をサポートし�
 
 ## ライセンス
 
-このプロジェクトはBSD 2-Clause Licenseの下でライセンスされています。詳細は[LICENSE](LICENSE)ファイルをご参照ください。
+このプロジェクトはBSD 2-Clause Licenseの下でライセンスされています。詳細は[LICENSE_BSD](LICENSE_BSD)ファイルをご参照ください。
 
 ただし、`test/perl_re_tests.txt`はPerlのソースコードから派生したものであり、Perlの提供するデュアルライセンスのうち、Artistic Licenseを選択して利用しています。詳細は[test/LICENSE.PERL_TESTS](test/LICENSE.PERL_TESTS)をご参照ください。
 

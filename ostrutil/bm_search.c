@@ -2,12 +2,11 @@
  * Copyright (c) 2025, Atsushi Ogawa
  * All rights reserved.
  *
- * This software is licensed under the BSD 2-Clause License.
- * See the LICENSE file for details.
+ * This software is licensed under the BSD License.
+ * See the LICENSE_BSD file for details.
  */
 
-
- #include <stdio.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include "bm_search.h"
@@ -97,10 +96,12 @@ static TCHAR *bm_search_lwr(HBM_DATA bm_data, const TCHAR *p_text, size_t len)
 
 	if(len >= bm_data->lwr_buf_len) {
 		size_t alloc_len = len + 1;
+		if(alloc_len < p_len + 1) alloc_len = p_len + 1;
 		alloc_len += (1024 - (alloc_len % 1024));
 		bm_data->lwr_buf = (TCHAR *)realloc(bm_data->lwr_buf,
-			(len + 1) * sizeof(TCHAR));
-		bm_data->lwr_buf_len = len + 1;
+			alloc_len * sizeof(TCHAR));
+		if(bm_data->lwr_buf == NULL) return NULL;
+		bm_data->lwr_buf_len = alloc_len;
 	}
 	p_lwr = bm_data->lwr_buf;
 

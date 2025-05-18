@@ -2,11 +2,11 @@
  * Copyright (c) 2025, Atsushi Ogawa
  * All rights reserved.
  *
- * This software is licensed under the BSD 2-Clause License.
- * See the LICENSE file for details.
+ * This software is licensed under the BSD License.
+ * See the LICENSE_BSD file for details.
  */
 
- #ifndef _OSTRUTIL_GET_CHAR_H_INCLUDED_
+#ifndef _OSTRUTIL_GET_CHAR_H_INCLUDED_
 #define _OSTRUTIL_GET_CHAR_H_INCLUDED_
 
 #ifdef WIN32
@@ -21,6 +21,10 @@ typedef unsigned int UINT_PTR;
 
 #ifdef OSTRUTIL_EUC
 #include "get_char_euc.h"
+#endif /* OSTRUTIL_EUC */
+
+#ifdef OSTRUTIL_UTF8
+#include "get_char_utf8.h"
 #endif /* OSTRUTIL_EUC */
 
 #ifdef _UNICODE

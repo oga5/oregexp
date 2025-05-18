@@ -2,8 +2,8 @@
  * Copyright (c) 2025, Atsushi Ogawa
  * All rights reserved.
  *
- * This software is licensed under the BSD 2-Clause License.
- * See the LICENSE file for details.
+ * This software is licensed under the BSD License.
+ * See the LICENSE_BSD file for details.
  */
 
 #ifndef __OREGEXP_H_INCLUDED__
@@ -29,6 +29,7 @@ extern "C" {
 
 #define OREGEXP_OPT_IGNORE_CASE			(0x01 << 0)
 #define OREGEXP_OPT_IGNORE_WIDTH_ASCII	(0x01 << 1)
+#define OREGEXP_OPT_NO_OPTIMIZE			(0x01 << 2)
 
 typedef struct oreg_data_st *HREG_DATA;
 
@@ -94,7 +95,7 @@ int oregexp_lwr2(const TCHAR *pattern, const TCHAR *str, INT_PTR *start, INT_PTR
 int oregexp_str_lwr(const TCHAR *pattern, const TCHAR *str, INT_PTR *start, INT_PTR *len, int i_flg);
 int oregexp_str_lwr2(const TCHAR *pattern, const TCHAR *str, INT_PTR *start, INT_PTR *len, int regexp_opt);
 
-int oregexp_print_nfa(const TCHAR *pattern);
+int oregexp_print_nfa(const TCHAR* pattern, int regexp_opt);
 
 TCHAR *oreg_replace_str(HREG_DATA reg_data, const TCHAR *str,
     const TCHAR *replace_str, int all_flg,
@@ -106,6 +107,8 @@ TCHAR *oreg_replace_str_cb(
 	HREG_DATA reg_data, const TCHAR *str,
     oreg_replace_callback_func callback_func, void *callback_arg, int all_flg,
     TCHAR *result_buf, int result_buf_size);
+TCHAR  *oreg_replace_simple(const TCHAR *pattern, const TCHAR *str, const TCHAR *replace_str,
+	int all_flg, int regexp_opt);
 
 #ifdef  __cplusplus
 }

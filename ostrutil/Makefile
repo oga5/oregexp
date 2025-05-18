@@ -1,6 +1,6 @@
 SHELL=/bin/bash
 CC=gcc
-CFLAGS=-g -Wsign-compare -DTEST -D_DEBUG -DOSTRUTIL_EUC -DLINUX
+CFLAGS=-g -Wsign-compare -DTEST -D_DEBUG -DOSTRUTIL_UTF8 -DLINUX
 #CFLAGS=-g -Wsign-compare -DTEST -D_DEBUG -D_UNICODE -DLINUX
 LD=ld
 LDFLAGS=-g

@@ -2,12 +2,11 @@
  * Copyright (c) 2025, Atsushi Ogawa
  * All rights reserved.
  *
- * This software is licensed under the BSD 2-Clause License.
- * See the LICENSE file for details.
+ * This software is licensed under the BSD License.
+ * See the LICENSE_BSD file for details.
  */
 
-
- #ifndef _OSTRUTIL_BM_LOCAL_H_INCLUDED_
+#ifndef _OSTRUTIL_BM_LOCAL_H_INCLUDED_
 #define _OSTRUTIL_BM_LOCAL_H_INCLUDED_
 
 #ifdef  __cplusplus

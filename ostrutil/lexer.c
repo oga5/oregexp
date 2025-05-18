@@ -2,12 +2,12 @@
  * Copyright (c) 2025, Atsushi Ogawa
  * All rights reserved.
  *
- * This software is licensed under the BSD 2-Clause License.
- * See the LICENSE file for details.
+ * This software is licensed under the BSD License.
+ * See the LICENSE_BSD file for details.
  */
 
-
 #include <string.h>
+#include <stddef.h>
 #include <assert.h>
 #include "local.h"
 #include "get_char.h"
@@ -103,7 +103,7 @@ static int skip_bress(const TCHAR *p, INT_PTR p_len, LexWord *lex_word)
 	unsigned int open_ch;
 	unsigned int close_ch;
 	int		cnt = 1;
-	int		len = 0;
+	INT_PTR	len = 0;
 
 	lex_word->data = p;
 
@@ -232,7 +232,7 @@ static const TCHAR *skip_integer(const TCHAR *p, INT_PTR p_len, LexWord *lex_wor
 	return p;
 }
 
-static int is_hex_value(const TCHAR *p, int hex_len)
+static int is_hex_value(const TCHAR *p, INT_PTR hex_len)
 {
 	int				i;
 	unsigned int	ch;
@@ -243,7 +243,7 @@ static int is_hex_value(const TCHAR *p, int hex_len)
 		ch = get_char(p);
 		p += get_char_len(p);
 
-		if((ch >= '-' && ch <= '9') || (ch >= 'a' && ch <= 'f')) {
+		if((ch >= '-' && ch <= '9') || (ch >= 'a' && ch <= 'f') || (ch >= 'A' && ch <= 'F')) {
 			continue;
 		} else {
 			return 0;
@@ -346,9 +346,10 @@ static int make_escape(const TCHAR *p, INT_PTR p_len, LexWord *lex_word)
 	} else if(ch == 'Q') {
 		const TCHAR *p2 = _tcsstr(p, _T("\\E"));
 		if(p2 == NULL) {
-			lex_word->len = (int)p_len;
+			lex_word->len = p_len;
 		} else {
-			lex_word->len = (int)(p2 - p) + 3;		// +3 for 'Q' and '\E'
+			ptrdiff_t pd = p2 - p;
+			lex_word->len = pd + 3;		// +3 for 'Q' and '\E'
 		}
 	} else {
 		(lex_word->len) += get_char_len(p);

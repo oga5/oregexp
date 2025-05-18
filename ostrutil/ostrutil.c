@@ -2,17 +2,14 @@
  * Copyright (c) 2025, Atsushi Ogawa
  * All rights reserved.
  *
- * This software is licensed under the BSD 2-Clause License.
- * See the LICENSE file for details.
+ * This software is licensed under the BSD License.
+ * See the LICENSE_BSD file for details.
  */
 
-
- /*----------------------------------------------------------------------
+/*----------------------------------------------------------------------
   strutil.c
-  �����񏈗�
+  文字列処理
 ----------------------------------------------------------------------*/
-/* Designed by A.Ogawa                                                */
-/* Programed by A.Ogawa                                               */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -25,7 +22,7 @@
 #include "str_inline.h"
 
 /*----------------------------------------------------------------------
-  �s���̉��s�R�[�h��sepa�Ŏw�肵���������폜����
+  行末の改行コードとsepaで指定した文字を削除する
 ----------------------------------------------------------------------*/
 void ostr_chomp(TCHAR *buf, TCHAR sepa)
 {
@@ -45,7 +42,7 @@ void ostr_chomp(TCHAR *buf, TCHAR sepa)
 }
 
 /*----------------------------------------------------------------------
-  ���[�̃X�y�[�X���폜
+  両端のスペースを削除
 ----------------------------------------------------------------------*/
 void ostr_trim(TCHAR *buf)
 {
@@ -54,16 +51,16 @@ void ostr_trim(TCHAR *buf)
 
 	if(buf == NULL || _tcslen(buf) == 0) return;
 
-	/* �O���̃X�y�[�X���폜 */
+	/* 前方のスペースを削除 */
 	p1 = buf;
 	for(i = 0; *p1 == ' '; i++, p1 += get_char_len(p1)) {
 		;
 	}
-	memmove(buf, buf + i, _tcslen(buf) + 1 - i);
+	memmove(buf, buf + i, (_tcslen(buf) + 1 - i) * sizeof(TCHAR));
 
 	if(_tcslen(buf) == 0) return;
 
-	/* ����̃X�y�[�X���폜 */
+	/* 後方のスペースを削除 */
 	p2 = NULL;
 	for(p1 = buf; *p1 != '\0'; p1 += get_char_len(p1)) {
 		if(*p1 == ' ') {
@@ -76,7 +73,7 @@ void ostr_trim(TCHAR *buf)
 }
 
 /*----------------------------------------------------------------------
-  ���[�̃X�y�[�X���폜
+  左端のスペースを削除
 ----------------------------------------------------------------------*/
 void ostr_trimleft(TCHAR *buf)
 {
@@ -85,7 +82,7 @@ void ostr_trimleft(TCHAR *buf)
 
 	if(buf == NULL || _tcslen(buf) == 0) return;
 
-	/* �O���̃X�y�[�X���폜 */
+	/* 前方のスペースを削除 */
 	p1 = buf;
 	for(i = 0; *p1 == ' '; i++, p1 += get_char_len(p1)) {
 		;
@@ -94,7 +91,7 @@ void ostr_trimleft(TCHAR *buf)
 }
 
 /*----------------------------------------------------------------------
-  �������sepa�ŕ�������
+  文字列をsepaで分割する
 ----------------------------------------------------------------------*/
 const TCHAR *ostr_split(const TCHAR *buf, TCHAR *buf2, TCHAR sepa)
 {
@@ -113,6 +110,10 @@ const TCHAR *ostr_split(const TCHAR *buf, TCHAR *buf2, TCHAR sepa)
 			}
 			*buf2 = *buf;
 		}
+		for(;; buf++) {
+			if(*buf == '\0') break;
+			if(*buf == sepa) break;
+		}
 	} else {
 		for(;; buf++, buf2++) {
 			if(*buf == '\0') break;
@@ -127,7 +128,7 @@ const TCHAR *ostr_split(const TCHAR *buf, TCHAR *buf2, TCHAR sepa)
 }
 
 /*----------------------------------------------------------------------
-  �����̒u��(c1 �� c2�ɒu��)
+  文字の置換(c1 を c2に置換)
 ----------------------------------------------------------------------*/
 void ostr_char_replace(TCHAR *s, const TCHAR c1, const TCHAR c2)
 {
@@ -137,7 +138,7 @@ void ostr_char_replace(TCHAR *s, const TCHAR c1, const TCHAR c2)
 }
 
 /*----------------------------------------------------------------------
-  �������𐔂���
+  文字数を数える
 ----------------------------------------------------------------------*/
 int ostr_str_char_cnt(const TCHAR *p, const TCHAR *end)
 {
@@ -149,7 +150,7 @@ int ostr_str_char_cnt(const TCHAR *p, const TCHAR *end)
 }
 
 /*----------------------------------------------------------------------
-  �����𐔂���
+  文字を数える
 ----------------------------------------------------------------------*/
 int ostr_str_cnt(const TCHAR *p, unsigned int ch)
 {
@@ -163,7 +164,7 @@ int ostr_str_cnt(const TCHAR *p, unsigned int ch)
 }
 
 /*----------------------------------------------------------------------
-  �����𐔂���
+  文字を数える
 ----------------------------------------------------------------------*/
 int ostr_str_cnt2(const TCHAR *p, const TCHAR *end, unsigned int ch)
 {
@@ -212,6 +213,17 @@ int ostr_strncmp_nocase(const TCHAR *p1, const TCHAR *p2, int len)
 	return 0;
 }
 
+const TCHAR *ostr_strstr_nocase(const TCHAR* p1, const TCHAR* p2, int p2_len)
+{
+	const TCHAR* p = p1;
+
+	for(; *p != '\0'; p += get_char_len(p)) {
+		if(ostr_strncmp_nocase(p, p2, p2_len) == 0) return p;
+	}
+
+	return NULL;
+}
+
 int ostr_get_cmplen_nocase(const TCHAR *p1, const TCHAR *p2, int len)
 {
 	int		i;
@@ -233,7 +245,7 @@ int ostr_get_cmplen_nocase(const TCHAR *p1, const TCHAR *p2, int len)
 }
 
 //
-// ���������܂܂�邩�`�F�b�N����
+// 小文字が含まれるかチェックする
 //
 int ostr_is_contain_lower(const TCHAR *str)
 {
@@ -252,7 +264,7 @@ int ostr_is_contain_lower(const TCHAR *str)
 }
 
 //
-// �啶�����܂܂�邩�`�F�b�N����
+// 大文字が含まれるかチェックする
 //
 int ostr_is_contain_upper(const TCHAR *str)
 {
@@ -272,7 +284,7 @@ int ostr_is_contain_upper(const TCHAR *str)
 
 
 //
-// �����񂪐������`�F�b�N����
+// 文字列が数字かチェックする
 //
 int ostr_is_digit_only(const TCHAR *str)
 {
@@ -287,7 +299,7 @@ int ostr_is_digit_only(const TCHAR *str)
 }
 
 //
-// ������ASCII���`�F�b�N����
+// 文字列がASCIIかチェックする
 //
 int ostr_is_ascii_only(const TCHAR *str)
 {
@@ -301,7 +313,7 @@ int ostr_is_ascii_only(const TCHAR *str)
 }
 
 //
-// ������̕\���������߂� (�����̃X�y�[�X�͊܂߂Ȃ�)
+// 文字列の表示幅を求める (末尾のスペースは含めない)
 //
 int ostr_first_line_len_no_last_space(const TCHAR *str)
 {
@@ -325,7 +337,7 @@ int ostr_first_line_len_no_last_space(const TCHAR *str)
 }
 
 //
-// �e�L�X�g�f�[�^�𕪊�
+// テキストデータを分割
 //
 static TCHAR *ostr_get_sepa_data(const TCHAR *p, TCHAR *buf, 
 	int buf_size, unsigned int sepa)
@@ -367,7 +379,7 @@ static TCHAR *ostr_get_sepa_data(const TCHAR *p, TCHAR *buf,
 }
 
 //
-// Excel�����Paste�f�[�^�𕪊�����
+// ExcelからのPasteデータを分割する
 //
 TCHAR *ostr_get_tsv_data(const TCHAR *p, TCHAR *buf, 
 	int buf_size)
@@ -376,7 +388,7 @@ TCHAR *ostr_get_tsv_data(const TCHAR *p, TCHAR *buf,
 }
 
 //
-// csv�f�[�^�𕪊�����
+// csvデータを分割する
 //
 TCHAR *ostr_get_csv_data(const TCHAR *p, TCHAR *buf, 
 	int buf_size)
@@ -385,7 +397,7 @@ TCHAR *ostr_get_csv_data(const TCHAR *p, TCHAR *buf,
 }
 
 //
-// Excel�����Paste�f�[�^�̃Z���̐��𐔂���
+// ExcelからのPasteデータのセルの数を数える
 //
 int ostr_get_tsv_col_cnt(const TCHAR *p)
 {
@@ -402,7 +414,34 @@ int ostr_get_tsv_col_cnt(const TCHAR *p)
 }
 
 //
-// �����񂪐��l���`�F�b�N����
+// ExcelからのPasteデータのセルが1行のみか確認
+//
+int ostr_is_tsv_single_row(const TCHAR* p)
+{
+	for (;;) {
+		p = ostr_get_tsv_data(p, NULL, 0);
+		if (*p != '\t') break;
+		p++;
+	}
+
+	if (*p == '\0') return 1;
+
+	return 0;
+}
+
+//
+// ExcelからのPasteデータのセルが1セルのみか確認
+//
+int ostr_is_tsv_single_col(const TCHAR* p)
+{
+	p = ostr_get_tsv_data(p, NULL, 0);
+	if (*p == '\0' || *p == '\r' || *p == '\n') return 1;
+
+	return 0;
+}
+
+//
+// 文字列が数値かチェックする
 //
 int ostr_str_isnum(const TCHAR *str)
 {
@@ -435,7 +474,7 @@ int ostr_str_isnum(const TCHAR *str)
 }
 
 //
-// tab text��format����
+// tab textをformatする
 //
 #pragma intrinsic(memcpy)
 void ostr_tabbed_text_format(const TCHAR *p1, TCHAR *buf, 
@@ -447,7 +486,7 @@ void ostr_tabbed_text_format(const TCHAR *p1, TCHAR *buf,
 	for(x = 0;;) {
 		for(; *p2; p2++) if(*p2 == '\t') break;
 		if(!(*p2)) {
-			// '\0'�܂ŃR�s�[����
+			// '\0'までコピーする
 			memcpy((buf + x), p1, (p2 - p1 + 1) * sizeof(TCHAR));
 			break;
 		}
@@ -475,7 +514,7 @@ void ostr_tabbed_text_format(const TCHAR *p1, TCHAR *buf,
 #pragma function(memcpy)
 
 //
-// tab text��size���v�Z����
+// tab textのsizeを計算する
 //
 INT_PTR ostr_calc_tabbed_text_size(const TCHAR *pstr, int tabstop)
 {
@@ -509,7 +548,7 @@ INT_PTR ostr_calc_tabbed_text_size_n(const TCHAR *pstr, int tabstop, int x)
 }
 
 //
-// CSV�f�[�^���o��
+// CSVデータを出力
 //
 int ostr_csv_fputs(FILE *stream, TCHAR *string, TCHAR sepa)
 {
@@ -529,7 +568,7 @@ int ostr_csv_fputs(FILE *stream, TCHAR *string, TCHAR sepa)
 	return 1;
 }
 
-// atof��wchar�o�[�W����
+// atofのwcharバージョン
 double _ttofbak(const TCHAR *p)
 {
 #ifdef _UNICODE
@@ -555,30 +594,97 @@ int get_scale(const TCHAR *value)
 
 
 //
-// Oracle�̃I�u�W�F�N�g���ŁA�_�u���N�H�[�g���K�v���`�F�b�N����
+// Oracleのオブジェクト名で、ダブルクォートが必要かチェックする
 //
 int ostr_need_object_name_quote_for_oracle(const TCHAR *object_name)
 {
-	// �啶���p����, _, $, #, �}���`�o�C�g�����ȊO��quote�Ώۂɂ���
+	// 大文字英数字, _, $, #, マルチバイト文字以外はquote対象にする
 	const TCHAR *p = object_name;
 
 	for(; *p != '\0'; p += get_char_len(p)) {
 		unsigned int ch = get_char(p);
 
-		// �S�p�p�����͔��p�ɂ���
-		if(ch >= L'�I' && ch <= L'�p') {
-			ch -= L'�I' - L'!';
+		// 全角英数字は半角にする
+		if(ch >= L'！' && ch <= L'｝') {
+			ch -= L'！' - L'!';
 		}
 
-		// �啶��, ����, ASCII
+		// 大文字, 数字, ASCII
 		if(inline_isupper(ch) || inline_isdigit(ch) || ch >= 0x80) continue;
 
 		// [_$#.]
 		if(ch == '_' || ch == '#' || ch == '$' || ch == '.') continue;
 
-		// ���̑���quote
+		// その他はquote
 		return 1;
 	}
 
 	return 0;
 }
+
+//
+const TCHAR *ostr_skip_space(const TCHAR *p)
+{
+	for(; *p != '\0'; p += get_char_len(p)) {
+		if(*p == ' ' || *p == '\t' || *p == '\r' || *p == '\n') continue;
+		break;
+	}
+
+	return p;
+}
+
+
+__inline int check_char(unsigned int ch, const TCHAR *trim_chars)
+{
+	const TCHAR *t = trim_chars;
+
+	for(; *t != '\0'; t += get_char_len(t)) {
+		if(ch == get_char(t)) {
+			return 1;
+		}
+	}
+	return 0;
+}
+
+void ostr_trim_chars(TCHAR *buf, const TCHAR *trim_chars)
+{
+	TCHAR *p = buf;
+	TCHAR *p_start = buf;
+	TCHAR *p_end = buf;
+
+	for(; *p != '\0'; p += get_char_len(p)) {
+		if(!check_char(get_char(p), trim_chars)) break;
+	}
+	p_start = p;
+
+	for(; *p != '\0'; p += get_char_len(p)) {
+		if(check_char(get_char(p), trim_chars)) break;
+	}
+	p_end = p;
+
+	memmove(buf, p_start, (p_end - p_start) * sizeof(TCHAR));
+	buf[p_end - p_start] = '\0';
+}
+
+void ostr_strcpy_replace(const TCHAR* src, TCHAR* dest, const TCHAR* pattern_str, const TCHAR* replace_str)
+{
+	const TCHAR* s = src;
+	const TCHAR* r;
+	TCHAR* d = dest;
+	size_t pat_len = _tcslen(pattern_str);
+
+	for(; *s != '\0'; s++) {
+		if(inline_strncmp(s, pattern_str, pat_len) == 0) {
+			for(r = replace_str; *r != '\0'; r++) {
+				*d = *r;
+				d++;
+			}
+			s += pat_len - 1;
+		} else {
+			*d = *s;
+			d++;
+		}
+	}
+	*d = '\0';
+}
+

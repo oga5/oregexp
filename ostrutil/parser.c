@@ -2,8 +2,8 @@
  * Copyright (c) 2025, Atsushi Ogawa
  * All rights reserved.
  *
- * This software is licensed under the BSD 2-Clause License.
- * See the LICENSE file for details.
+ * This software is licensed under the BSD License.
+ * See the LICENSE_BSD file for details.
  */
 
 #include <stdio.h>
@@ -126,7 +126,7 @@ __inline static void *my_malloc(OREG_DATA *reg_data, size_t size)
 {
 	void *p;
 
-	if(size % 4 != 0) { // size��4�̔{���ɂ���(BUS�G���[�ɂȂ邽��)
+	if(size % 4 != 0) { // sizeは4の倍数にする(BUSエラーになるため)
 		size += 4 - size % 4;
 	}
 
@@ -310,17 +310,17 @@ static NFA_NODE *make_conditional(OREG_DATA *reg_data, LexWord *lex_word)
 	LexWord				tmp_word;
 	NFA_NODE			*node, *cond_node, *true_node, *false_node, *last_node;
 
-	p = lex_word->data + 2;		// (?��ǂݔ�΂�
-	p_len = lex_word->len - 3;	// (?��)�̕����}�C�i�X
+	p = lex_word->data + 2;		// (?を読み飛ばす
+	p_len = lex_word->len - 3;	// (?と)の分をマイナス
 
-	// condition�̕�������擾
+	// conditionの文字列を取得
 	if(skip_comment(&p, &p_len) != 0) return NULL;
 	if(lexer(p, p_len, &cond_word) != 0) return NULL;
 	assert(cond_word.type == LEX_GROUP);
 	p += cond_word.len;
 	p_len -= cond_word.len;
 
-	// true���̌�����������擾
+	// true時の検索文字列を取得
 	true_str = p;
 	true_len = 0;
 	for(;;) {
@@ -333,7 +333,7 @@ static NFA_NODE *make_conditional(OREG_DATA *reg_data, LexWord *lex_word)
 		if(p_len == 0) break;
 	}
 
-	// false���̌�����������擾
+	// false時の検索文字列を取得
 	false_str = p;
 	false_len = p_len;
 
@@ -365,7 +365,7 @@ static NFA_NODE *make_conditional(OREG_DATA *reg_data, LexWord *lex_word)
 			if(cond_word.data[2] >= '1' && cond_word.data[2] <= '9') {
 				cond_node->data.back_ref.idx = cond_word.data[2] - '0';
 			} else {
-				// FIXME: R&NAME�ɑΉ�����
+				// FIXME: R&NAMEに対応する
 				return NULL;
 			}
 		} else {
@@ -393,7 +393,7 @@ static NFA_NODE *make_conditional(OREG_DATA *reg_data, LexWord *lex_word)
 	node->next[0] = false_node;
 	node->next[1] = true_node;
 
-	// true, false�̍Ō�ō�������
+	// true, falseの最後で合流する
 	last_node = alloc_nfa_node(reg_data);
 	if(last_node == NULL) return NULL;
 	get_last_node(true_node)->next[0] = last_node;
@@ -420,12 +420,12 @@ static void set_reg_switch(OREG_DATA *reg_data, int sw, int b_minus)
 static NFA_NODE *process_reg_switch(OREG_DATA *reg_data, LexWord *lex_word)
 {
 	const TCHAR		*data;
-	int		len;
+	INT_PTR		len;
 	int		b_minus = 0;
 	int		back_reg_switch = reg_data->reg_switch;
 	unsigned int ch;
 
-	// "(?"��ǂݔ�΂�
+	// "(?"を読み飛ばす
 	data = lex_word->data + 2;
 	len = lex_word->len - 3;
 
@@ -535,8 +535,8 @@ static int get_named_backref(OREG_DATA *reg_data, const TCHAR *data, INT_PTR *p_
 static NFA_NODE *make_group(OREG_DATA *reg_data, LexWord *lex_word,
 	int b_cond_flg)
 {
-	NFA_NODE	*start, *end, *node;
-	const TCHAR		*data;
+	NFA_NODE	*start = NULL, *end = NULL, *node = NULL;
+	const TCHAR		*data = NULL;
 	INT_PTR			len;
 	int			b_enable_loop = 1;
 
@@ -589,7 +589,7 @@ static NFA_NODE *make_group(OREG_DATA *reg_data, LexWord *lex_word,
 			if(get_char(data + 2) != ')') return NULL;
 			return make_recursive_node(reg_data, 0);
 		} else if(ch1 >= '0' && ch1 <= '9') {
-			/* FIXME: 0�`9�̂ݑΉ�: BACK_REF_IDX_MAX�܂Ŋg������ */
+			/* FIXME: 0〜9のみ対応: BACK_REF_IDX_MAXまで拡張する */
 			/* recursive expression not terminated */
 			if(get_char(data + 2) != ')') return NULL;
 			return make_recursive_node(reg_data, ch1 - '0');
@@ -699,7 +699,7 @@ static unsigned int convert_escape(unsigned int ch)
 	return ch;
 }
 
-static int get_max_pair_cnt(const TCHAR *p, int p_len)
+static int get_max_pair_cnt(const TCHAR *p, INT_PTR p_len)
 {
 	int				cnt = 0;
 	unsigned int	ch;
@@ -746,7 +746,7 @@ static void make_char_class_ch_data(CHAR_CLASS *char_class,
 static void make_esc_char_class(OREG_DATA *oreg_data, CHAR_CLASS *char_class,
 	unsigned int ch)
 {
-	const unsigned char *tbl;
+	const unsigned char *tbl = NULL;
 	int		not = 0;
 	int		i;
 
@@ -762,16 +762,18 @@ static void make_esc_char_class(OREG_DATA *oreg_data, CHAR_CLASS *char_class,
 		break;
 	case 'l': tbl = CHAR_CLASS_l_TBL;
 		break;
+	default:
+		return;
 	}
 
 	if(not) {
 		for(i = 0; i < ESC_CHAR_CLASS_TABLE_SIZE; i++) {
 			char_class->char_tbl[i] |= ~tbl[i];
 		}
-		// �S�p�����͑S�Ĉ�v����
+		// 全角文字は全て一致する
 		char_class->all_mb_flg = 1;
 
-		// �ے�̂Ƃ����s�����Ƀ}�b�`�����Ȃ�
+		// 否定のとき改行文字にマッチさせない
 		{
 			const char ch = '\n';
 			char_class->char_tbl[ch / 8] &= ~(0x01 << (ch % 8));
@@ -871,7 +873,7 @@ static void make_char_class_pair(CHAR_CLASS *char_class,
 }
 
 static int make_char_class_data(OREG_DATA *reg_data, CHAR_CLASS *char_class,
-	const TCHAR *p, int p_len, int ic_flg, int iw_flg)
+	const TCHAR *p, INT_PTR p_len, int ic_flg, int iw_flg)
 {
 	unsigned int	ch;
 	unsigned int	prev_ch = '\0';
@@ -918,7 +920,7 @@ static int make_char_class_data(OREG_DATA *reg_data, CHAR_CLASS *char_class,
 				make_char_class_ch_data(char_class, ch, ic_flg, iw_flg);
 				if(p_len == 0) break;
 			} else {
-				// ���̕������擾
+				// 次の文字を取得
 				ch = get_char(p);
 				p_len -= get_char_len(p);
 				p += get_char_len(p);
@@ -951,7 +953,7 @@ static int make_char_class_data(OREG_DATA *reg_data, CHAR_CLASS *char_class,
 	return 0;
 }
 
-static int get_char_class_other_len(const TCHAR *p, int p_len)
+static INT_PTR get_char_class_other_len(const TCHAR *p, INT_PTR p_len)
 {
 	int		other_len = 0;
 
@@ -965,12 +967,12 @@ static int get_char_class_other_len(const TCHAR *p, int p_len)
 }
 
 static NFA_NODE *make_char_class(OREG_DATA *reg_data,
-	const TCHAR *data, int len)
+	const TCHAR *data, INT_PTR len)
 {
 	NFA_NODE	*node = NULL;
 	CHAR_CLASS	*char_class;
 	int			max_pair_cnt = 0;
-	int			other_len = 0;
+	INT_PTR		other_len = 0;
 	int			ic_flg = (reg_data->reg_switch & REG_SWITCH_ic) ? 1:0;
 	int			iw_flg = (reg_data->reg_switch & REG_SWITCH_iw) ? 1:0;
 
@@ -1012,7 +1014,7 @@ static NFA_NODE *make_char_class(OREG_DATA *reg_data,
 		return NULL;
 	}
 
-	// �ے�̌����̂Ƃ��A���s�Ƀ}�b�`�����Ȃ�
+	// 否定の検索のとき、改行にマッチさせない
 	if(char_class->not) {
 		const char ch = '\n';
 		char_class->char_tbl[ch / 8] |= (0x01 << (ch % 8));
@@ -1063,8 +1065,8 @@ const TCHAR *get_back_ref_idx(const TCHAR *p, int *val, int back_ref_cnt)
 	}
 
 	if(!bracket_flg && *val >= back_ref_cnt) {
-		// 2���ȏ�̐��l��ǂݍ��񂾂Ƃ��A����Q�Ƃ̐��𒴂���ꍇ�́A
-		// �擪1���̎w��Ƃ��ď�������
+		// 2桁以上の数値を読み込んだとき、後方参照の数を超える場合は、
+		// 先頭1桁の指定として処理する
 		p = org_p;
 		*val = *p - '0' - 1;
 		p += get_char_len(p);
@@ -1084,6 +1086,8 @@ static int get_hex_num(const TCHAR *p, const TCHAR *p_end)
 			ret_v += *p - '0';
 		} else if(*p >= 'a' && *p <= 'f') {
 			ret_v += *p - 'a' + 10;
+		} else if(*p >= 'A' && *p <= 'F') {
+			ret_v += *p - 'A' + 10;
 		} else {
 			return -1;
 		}
@@ -1097,7 +1101,7 @@ static NFA_NODE *make_word_nodes_from_escape_data(OREG_DATA *reg_data,
 {
 	const TCHAR *p = skip_chars(lex_word->data, 2);	// skip '\\Q'
 	const TCHAR *p2 = _tcsstr(p, _T("\\E"));
-	int			word_len;
+	INT_PTR		word_len;
 	NFA_NODE	*start_node = NULL;
 	NFA_NODE	*cur_node = NULL;
 
@@ -1170,7 +1174,7 @@ static NFA_NODE *make_escape_node(OREG_DATA *reg_data, LexWord *lex_word)
 		ch = get_char(p);
 		if(ch == '<' || ch == '\'') {
 			NFA_NODE *node;
-			int copy_len = lex_word->len - 4;	// \\k<>��4�����ȊO���R�s�[
+			INT_PTR copy_len = lex_word->len - 4;	// \\k<>の4文字以外をコピー
 
 			node = make_type_node(reg_data, NODE_NAMED_BACK_REF);
 			if(node == NULL) return NULL;
@@ -1325,8 +1329,8 @@ static int check_loop_detect(NFA_NODE *node, int depth)
 	for(; node != NULL;) {
 		switch(node->type) {
 		case NODE_RECURSIVE:
-			// recursive pattern�̏ꍇ�A��ɔԕ�������
-			// FIXME: �ԕ����@�\���Ă��邩�m�F����
+			// recursive patternの場合、常に番兵を入れる
+			// FIXME: 番兵が機能しているか確認する
 			return 1;
 		case NODE_WORD:
 		case NODE_ANY_CHAR:
@@ -1342,51 +1346,95 @@ static int check_loop_detect(NFA_NODE *node, int depth)
 	return 1;
 }
 
-static NFA_NODE *make_quantifier(OREG_DATA *reg_data, NFA_NODE *node,
+static NFA_NODE *make_quantifier_multi(OREG_DATA *reg_data, NFA_NODE *node,
+	unsigned int ctrl_ch, int b_short)
+{
+	NFA_NODE *start_node;
+
+	start_node = make_branch_node(reg_data, ctrl_ch);
+	if(start_node == NULL) return NULL;
+
+	if(check_loop_detect(node, 0)) {
+		NFA_NODE *loop_detect_node =
+			make_type_node(reg_data, NODE_LOOP_DETECT);
+		if(loop_detect_node == NULL) return NULL;
+
+		loop_detect_node->next[0] = node;
+		start_node->next[1] = loop_detect_node;
+	} else {
+		start_node->next[1] = node;
+	}
+	if(!b_short) start_node->first_test = 1;
+	
+	get_last_node(node)->next[0] = start_node;
+
+	return start_node;
+}
+
+static NFA_NODE *make_quantifier_plus(OREG_DATA *reg_data, NFA_NODE *node,
 	unsigned int ctrl_ch, int b_short)
 {
 	NFA_NODE *start_node;
 	NFA_NODE *end_node;
 
-	assert(ctrl_ch == '*' || ctrl_ch == '+' || ctrl_ch == '?');
-
-	if(ctrl_ch == '*' || ctrl_ch == '+') {
-		end_node = make_branch_node(reg_data, ctrl_ch);
-	} else {
-		end_node = alloc_nfa_node(reg_data);
-	}
+	end_node = make_branch_node(reg_data, ctrl_ch);
 	if(end_node == NULL) return NULL;
 
-	if(ctrl_ch == '*' || ctrl_ch == '?') {
-		start_node = make_branch_node(reg_data, ctrl_ch);
-		if(start_node == NULL) return NULL;
-		start_node->next[0] = node;
-		start_node->next[1] = end_node;
-		if(b_short) start_node->first_test = 1;
+	start_node = alloc_nfa_node(reg_data);
+	if(start_node == NULL) return NULL;
+	start_node->next[0] = node;
+
+	if(check_loop_detect(node, 0)) {
+		// 番兵を入れる
+		NFA_NODE *loop_detect_node =
+			make_type_node(reg_data, NODE_LOOP_DETECT);
+		if(loop_detect_node == NULL) return NULL;
+
+		end_node->next[1] = loop_detect_node;
+		end_node->next[1]->next[0] = start_node->next[0];
 	} else {
-		start_node = alloc_nfa_node(reg_data);
-		if(start_node == NULL) return NULL;
-		start_node->next[0] = node;
+		end_node->next[1] = start_node->next[0];
 	}
-
-	if(ctrl_ch == '*' || ctrl_ch == '+') {
-		if(check_loop_detect(node, 0)) {
-			// �ԕ�������
-			NFA_NODE *loop_detect_node =
-				make_type_node(reg_data, NODE_LOOP_DETECT);
-			if(loop_detect_node == NULL) return NULL;
-
-			end_node->next[1] = loop_detect_node;
-			end_node->next[1]->next[0] = start_node->next[0];
-		} else {
-			end_node->next[1] = start_node->next[0];
-		}
-		if(!b_short) end_node->first_test = 1;
-	}
+	if(!b_short) end_node->first_test = 1;
 
 	get_last_node(node)->next[0] = end_node;
 
 	return start_node;
+}
+
+static NFA_NODE *make_quantifier_q(OREG_DATA *reg_data, NFA_NODE *node,
+	unsigned int ctrl_ch, int b_short)
+{
+	NFA_NODE *start_node;
+	NFA_NODE *end_node;
+
+	end_node = alloc_nfa_node(reg_data);
+	if(end_node == NULL) return NULL;
+
+	start_node = make_branch_node(reg_data, ctrl_ch);
+	if(start_node == NULL) return NULL;
+	start_node->next[0] = node;
+	start_node->next[1] = end_node;
+	if(b_short) start_node->first_test = 1;
+
+	get_last_node(node)->next[0] = end_node;
+
+	return start_node;
+}
+
+static NFA_NODE *make_quantifier(OREG_DATA *reg_data, NFA_NODE *node,
+	unsigned int ctrl_ch, int b_short)
+{
+	assert(ctrl_ch == '*' || ctrl_ch == '+' || ctrl_ch == '?');
+
+	if(ctrl_ch == '*') {
+		return make_quantifier_multi(reg_data, node, ctrl_ch, b_short);
+	}
+	if(ctrl_ch == '+') {
+		return make_quantifier_plus(reg_data, node, ctrl_ch, b_short);
+	}
+
+	return make_quantifier_q(reg_data, node, ctrl_ch, b_short);
 }
 
 static NFA_NODE *make_quantifier_main(OREG_DATA *reg_data, NFA_NODE *node,
@@ -1485,7 +1533,7 @@ static NFA_NODE *make_quantifier_main(OREG_DATA *reg_data, NFA_NODE *node,
 				next_node = make_quantifier(reg_data, next_node, '?', b_short);
 				if(next_node == NULL) return NULL;
 
-				/* backtrack�팸�̍œK�� (.{2,22}) -> (?>.{2,22}) */
+				/* backtrack削減の最適化 (.{2,22}) -> (?>.{2,22}) */
 				next_node->type = NODE_BRANCH;
 				next_node->next[1] = end_node;
 
@@ -1495,7 +1543,7 @@ static NFA_NODE *make_quantifier_main(OREG_DATA *reg_data, NFA_NODE *node,
 		}
 
 		if(min == 0) {
-			// �����S�̂�skip��������
+			// 条件全体のskipを許可する
 			head_node = make_quantifier(reg_data, head_node, '?', b_short);
 		}
 	}
@@ -1512,7 +1560,7 @@ static NFA_NODE *make_branch(OREG_DATA *reg_data, const TCHAR *p, INT_PTR p_len,
 	LexWord		lex_word_q;
 	int			back_ref_cnt;
 
-	// ��J�ڂ����
+	// 空遷移を作る
 	node = alloc_nfa_node(reg_data);
 	if(node == NULL) return NULL;
 
@@ -1538,7 +1586,7 @@ static NFA_NODE *make_branch(OREG_DATA *reg_data, const TCHAR *p, INT_PTR p_len,
 			p += lex_word_q.len;
 			p_len -= lex_word_q.len;
 
-			// �ʎw��q�͂����ŏ�������
+			// 量指定子はここで処理する
 			next_node = make_quantifier_main(reg_data, next_node,
 				&lex_word_q, &lex_word, back_ref_cnt, b_enable_loop);
 			if(next_node == NULL) return NULL;
@@ -1560,14 +1608,14 @@ static NFA_NODE *make_or_nfa(OREG_DATA *reg_data, NFA_NODE *node,
 	NFA_NODE *start = NULL;
 	NFA_NODE *end = NULL;
 
-	// NFA�̐擪�����
+	// NFAの先頭を作る
 	start = make_branch_node(reg_data, '|');
 	if(start == NULL) return NULL;
 
 	start->next[0] = prev_node;
 	start->next[1] = node;
 
-	// NFA�̖��������
+	// NFAの末尾を作る
 	end = alloc_nfa_node(reg_data);
 	if(end == NULL) return NULL;
 
@@ -1689,7 +1737,7 @@ static NFA_NODE *optimize_skip_epsilon(OREG_DATA *reg_data, NFA_NODE *node)
 
 		node->next[0] = skip_epsilon_node(node->next[0]);
 
-		// ������epsiron����������(��������Ǝ󗝃m�[�h���ЂƂɂȂ�Ȃ�)
+		// 末尾のepsironを除去する(除去すると受理ノードがひとつにならない)
 		//if(is_null_node(node->next[0])) node->next[0] = NULL;
 
 		if(node->next[1] != NULL) {
@@ -1701,8 +1749,8 @@ static NFA_NODE *optimize_skip_epsilon(OREG_DATA *reg_data, NFA_NODE *node)
 }
 
 /*
- ab|ac => a(?:b|c)�֕ϊ�
- (?:a?){3}a{3} => a{3}(?:a?){3}�ɕϊ�
+ ab|ac => a(?:b|c)へ変換
+ (?:a?){3}a{3} => a{3}(?:a?){3}に変換
 
  http://swtch.com/~rsc/regexp/regexp1.html
 */
@@ -1712,10 +1760,10 @@ static void optimize_merge_selective(OREG_DATA *reg_data, NFA_NODE *node)
 		if(node->optimized & OPTIMIZE_MERGE_SELECTIVE) break;
 		node->optimized |= OPTIMIZE_MERGE_SELECTIVE;
 
-		// ����m�[�h�ȊO�̓X�L�b�v
+		// 分岐ノード以外はスキップ
 		if(node->next[1] == NULL || node->next[0] == NULL) continue;
 
-		// ��ɉ���node����������
+		// 先に奥のnodeを解決する
 		optimize_merge_selective(reg_data, node->next[0]);
 
 		if(node->type == NODE_BRANCH &&
@@ -1725,18 +1773,18 @@ static void optimize_merge_selective(OREG_DATA *reg_data, NFA_NODE *node)
 		   node->next[0]->data.ch.ic_flg == node->next[1]->data.ch.ic_flg &&
 		   node->next[0]->data.ch.iw_flg == node->next[1]->data.ch.iw_flg) {
 			/*
-			 * ���K�\��ab|ac�̂Ƃ��A�ȉ��̕ϊ����s��
+			 * 正規表現ab|acのとき、以下の変換を行う
 			 *
-			 * �ϊ��O
+			 * 変換前
 			 * (1:branch) -> (2:a) -> (4:b)
 			 *            -> (3:a) -> (5:c)
 			 *
-			 * �ϊ���
+			 * 変換後
 			 * (1:a) -> (New:branch) -> (4:b)
 			 *                       -> (5:c)
 			 *
-			 * - node1��(a)�ɏ���������
-			 * - node1�̎��ɐV��������m�[�h��}�����Anode2,3�̎���node���w��
+			 * - node1を(a)に書き換える
+			 * - node1の次に新しい分岐ノードを挿入し、node2,3の次のnodeを指す
 			*/
 			unsigned int ch = node->next[0]->data.ch.c;
 			int ic_flg = node->next[0]->data.ch.ic_flg;
@@ -1764,7 +1812,7 @@ static int check_char_tbl(const unsigned char *char_tbl, unsigned int ch)
 	return 0;
 }
 
-// char_class��char_tbl�̃`�F�b�N�݂̂Ńe�X�g�\��
+// char_classがchar_tblのチェックのみでテスト可能か
 static int check_char_class_is_simple(CHAR_CLASS *char_class)
 {
 	if(char_class->not) return 0;
@@ -1811,7 +1859,7 @@ static int candidate_branch_node(NFA_NODE *node, char *node_check_buf,
 	struct candidate_branch_st *candidate, int candidate_cnt, int tag)
 {
 	for(; node != NULL; node = node->next[0]) {
-		int n = node->node_id;
+		INT_PTR n = node->node_id;
 		if(node_check_buf[n / 8] & (0x01 << (n % 8))) break;
 		node_check_buf[n / 8] |= (0x01 << (n % 8));
 
@@ -1837,7 +1885,7 @@ static int candidate_branch_node(NFA_NODE *node, char *node_check_buf,
 		}
 	}
 
-	// �I�[�ɓ��B���邱�Ƃ��ł���ꍇ�A�S�ẴP�[�X���󗝂���
+	// 終端に到達することができる場合、全てのケースを受理する
 	if(node == NULL) return -1;
 	return candidate_cnt;
 }
@@ -1895,7 +1943,7 @@ static void optimize_branch_node(OREG_DATA *reg_data, NFA_NODE *node,
 	int		candidate_cnt = 0;
 	int		i;
 
-	// �������擾
+	// 分岐先を取得
 	memset(node_check_buf, 0, (reg_data->cur_node_id / 8) + 1);
 	candidate_cnt = candidate_branch_node(node->next[0], node_check_buf,
 		candidate, candidate_cnt, 0);
@@ -1908,7 +1956,7 @@ static void optimize_branch_node(OREG_DATA *reg_data, NFA_NODE *node,
 	assert(candidate_cnt <= MAX_BRANCH_CANDIDATE);
 	if(candidate_cnt == 0 || candidate_cnt == -1) return;
 
-	// �����}�[�W����
+	// 候補をマージする
 	branch_tbl = (unsigned char *)my_malloc(reg_data, BRANCH_TABLE_SIZE);
 	if(branch_tbl == NULL) return;
 	memset(branch_tbl, 0, BRANCH_TABLE_SIZE);
@@ -2169,16 +2217,18 @@ OREG_DATA *oreg_comp2(const TCHAR *pattern, int regexp_opt)
 		return NULL;
 	}
 
-	reg_data->nfa_node = optimize_skip_epsilon(reg_data, reg_data->nfa_node);
+	if(!(regexp_opt & OREGEXP_OPT_NO_OPTIMIZE)) {
+		reg_data->nfa_node = optimize_skip_epsilon(reg_data, reg_data->nfa_node);
 
-	optimize_merge_selective(reg_data, reg_data->nfa_node);
-	{
-		unsigned char   node_check_buf[256];
-		if((reg_data->cur_node_id / 8) + 1 < (int)sizeof(node_check_buf)) {
-			optimize_branch(reg_data, reg_data->nfa_node, 0, node_check_buf);
+		optimize_merge_selective(reg_data, reg_data->nfa_node);
+		{
+			unsigned char   node_check_buf[256];
+			if((reg_data->cur_node_id / 8) + 1 < (int)sizeof(node_check_buf)) {
+				optimize_branch(reg_data, reg_data->nfa_node, 0, node_check_buf);
+			}
 		}
+		optimize_make_words(reg_data, reg_data->nfa_node);
 	}
-	optimize_make_words(reg_data, reg_data->nfa_node);
 
 	set_exec_mode(reg_data, pattern);
 
@@ -2197,10 +2247,10 @@ OREG_DATA *oreg_comp2(const TCHAR *pattern, int regexp_opt)
 
 static INT_PTR print_nfa_node_elem(NFA_NODE *node)
 {
-	TCHAR	buf[512] = _T("");
-	TCHAR	buf2[512] = _T("");
+	TCHAR	buf[1024] = _T("");
+	TCHAR	buf2[1024] = _T("");
 
-	_stprintf(buf, _T("%d:"), node->node_id);
+	_stprintf(buf, _T("%Id:"), node->node_id);
 
 	switch(node->type) {
 	case NODE_EPSILON:
@@ -2296,6 +2346,11 @@ static INT_PTR print_nfa_node_elem(NFA_NODE *node)
 	case NODE_RECURSIVE:
 		_stprintf(buf2, _T("recursive(%d)"), node->data.recursive.idx);
 		break;
+	case NODE_POSSESSIVE_CAPUTURE:
+		_stprintf(buf2, _T("possessive_capture(min:%d, max:%d)"),
+			node->data.possessive_capture.min,
+			node->data.possessive_capture.max);
+		break;
 	default:
 		_stprintf(buf2, _T("unknown(%d)"), node->type);
 		break;
@@ -2308,13 +2363,13 @@ static INT_PTR print_nfa_node_elem(NFA_NODE *node)
 
 static void print_nfa_node_main(NFA_NODE *node, INT_PTR sp, unsigned char *node_check_buf)
 {
-	int		n;
+	INT_PTR		n;
 
 	if(node == NULL) return;
 
 	n = node->node_id;
 	if(node_check_buf[n / 8] & (0x01 << (n % 8))) {
-		printf("[%d]", node->node_id);
+		printf("[%Id]", node->node_id);
 		return;
 	}
 
@@ -2361,9 +2416,9 @@ void print_nfa_node(OREG_DATA *reg_data)
 	print_nfa_node2(reg_data, reg_data->nfa_node);
 }
 
-int oregexp_print_nfa(const TCHAR *pattern)
+int oregexp_print_nfa(const TCHAR *pattern, int regexp_opt)
 {
-	OREG_DATA *reg_data = oreg_comp(pattern, 0);
+	OREG_DATA *reg_data = oreg_comp2(pattern, regexp_opt);
 	if(reg_data != NULL) {
 		print_nfa_node(reg_data);
 	} else {

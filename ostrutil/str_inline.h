@@ -2,8 +2,8 @@
  * Copyright (c) 2025, Atsushi Ogawa
  * All rights reserved.
  *
- * This software is licensed under the BSD 2-Clause License.
- * See the LICENSE file for details.
+ * This software is licensed under the BSD License.
+ * See the LICENSE_BSD file for details.
  */
 
 #ifndef _OSTRUTIL_STR_INLINE_H_INCLUDED_
@@ -73,9 +73,9 @@ __inline static int inline_strcmp(const TCHAR *p1, const TCHAR *p2)
 	return 0;
 }
 
-__inline static int inline_strncmp(const TCHAR *p1, const TCHAR *p2, int len)
+__inline static int inline_strncmp(const TCHAR *p1, const TCHAR *p2, size_t len)
 {
-	int		i;
+	size_t	i;
 	for(i = 0; i < len; i++, p1++, p2++) {
 		if(*p1 != *p2) return *p1 - *p2;
 		if(*p1 == '\0') break;
@@ -83,18 +83,18 @@ __inline static int inline_strncmp(const TCHAR *p1, const TCHAR *p2, int len)
 	return 0;
 }
 
-__inline static void inline_strncpy(TCHAR *p1, const TCHAR *p2, int len)
+__inline static void inline_strncpy(TCHAR *p1, const TCHAR *p2, size_t len)
 {
-	int		i;
+	size_t		i;
 	for(i = 0; i < len; i++, p1++, p2++) {
 		*p1 = *p2;
 		if(*p2 == '\0') break;
 	}
 }
 
-__inline static int inline_ostr_strncmp_nocase(const TCHAR *p1, const TCHAR *p2, int len)
+__inline static int inline_ostr_strncmp_nocase(const TCHAR *p1, const TCHAR *p2, size_t len)
 {
-	int		i;
+	size_t		i;
 	unsigned int	ch1, ch2;
 
 	for(i = 0; i < len;) {
@@ -121,9 +121,9 @@ __inline static INT_PTR inline_strlen_first_line(const TCHAR *p, int line_feed_w
 	return p - p_start;
 }
 
-__inline static const TCHAR *skip_chars(const TCHAR *p, int cnt)
+__inline static const TCHAR *skip_chars(const TCHAR *p, INT_PTR cnt)
 {
-	int		i;
+	INT_PTR		i;
 
 	for(i = 0; i < cnt; i++) {
 		if(get_char(p) == '\0') { // error

@@ -2,12 +2,11 @@
  * Copyright (c) 2025, Atsushi Ogawa
  * All rights reserved.
  *
- * This software is licensed under the BSD 2-Clause License.
- * See the LICENSE file for details.
+ * This software is licensed under the BSD License.
+ * See the LICENSE_BSD file for details.
  */
 
-
- #include <stdio.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
@@ -285,6 +284,23 @@ TCHAR *oreg_replace_str_cb(
 {
 	return _oreg_replace_str_main(reg_data, str, _T(""), all_flg,
 		result_buf, result_buf_size, callback_func, callback_arg);
+}
+
+TCHAR  *oreg_replace_simple(const TCHAR *pattern, const TCHAR *str, const TCHAR *replace_str,
+	int all_flg, int regexp_opt)
+{
+	TCHAR		*result;
+	OREG_DATA   *reg_data;
+
+	reg_data = oreg_comp2(pattern, regexp_opt);
+	if(reg_data == NULL) return NULL;
+
+	result = _oreg_replace_str_main(reg_data, str, replace_str, all_flg,
+		NULL, 0, NULL, NULL);
+
+	oreg_free(reg_data);
+
+	return result;
 }
 
 int oregexp_lwr_main2(const TCHAR *pattern,
