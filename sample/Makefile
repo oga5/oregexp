@@ -33,6 +33,13 @@ $(LIBRARY):
 clean:
 	rm -f $(PROGRAMS) $(OBJS)
 
+# explicit dependencies
+basic_match.o: basic_match.c ../ostrutil/oregexp.h ../ostrutil/local.h
+capture_groups.o: capture_groups.c ../ostrutil/oregexp.h ../ostrutil/local.h
+string_replace.o: string_replace.c ../ostrutil/oregexp.h ../ostrutil/local.h
+callback_replace.o: callback_replace.c ../ostrutil/oregexp.h ../ostrutil/local.h
+japanese_text.o: japanese_text.c ../ostrutil/oregexp.h ../ostrutil/local.h
+
 # suffix
 .SUFFIXES: .o .c
 

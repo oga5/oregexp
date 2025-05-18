@@ -198,6 +198,12 @@ __inline static const TCHAR *get_prev_str(const TCHAR *p)
     return q;
 }
 
+__inline static int get_prev_char_len(const TCHAR *p)
+{
+    const TCHAR *q = get_prev_str(p);
+	return p - q;
+}
+
 __inline static unsigned int get_ascii_char(unsigned int ch)
 {
 	if(inline_ismblower(ch)) {
@@ -208,6 +214,13 @@ __inline static unsigned int get_ascii_char(unsigned int ch)
 	}
 
 	return ch;
+}
+
+__inline static int is_mbstr_char_boundary(const TCHAR *p_start, const TCHAR *p)
+{
+    if(p_start == p) return 1;  // 文字列の先頭は常に有効
+    if(((*p & 0xC0) != 0x80)) return 1;  // UTF-8の先頭バイト（継続バイトでない）なら有効
+    return 0;  // それ以外（継続バイト）は文字の途中なので無効
 }
 
 #ifdef  __cplusplus

@@ -1,4 +1,3 @@
-
 #ifdef  __cplusplus
 extern "C" {
 #endif
@@ -150,6 +149,31 @@ __inline static TCHAR *put_char(TCHAR *p, unsigned int ch)
 		p++;
 	}
 	return p;
+}
+
+__inline static const TCHAR *get_prev_str(const TCHAR *p)
+{
+    // 1バイト前が2バイト目なら2バイト戻る、そうでなければ1バイト戻る
+    return (p > p - 1 && is_lead_byte(*(p - 2)) && !is_lead_byte(*(p - 1))) ? p - 2 : p - 1;
+}
+
+__inline static int get_prev_char_len(const TCHAR *p)
+{
+    const TCHAR *q = get_prev_str(p);
+    return p - q;
+}
+
+__inline static int is_mbstr_char_boundary(const TCHAR *p_start, const TCHAR *p)
+{
+    if(p_start == p) return 1;  // 文字列の先頭は常に有効
+    
+    // 直前のバイトが先頭バイトの場合、現在位置は2バイト目（無効）
+    if(p > p_start && is_lead_byte(*(p - 1))) {
+        // 直前が先頭バイトなら、現在位置は2バイト目の位置
+        return 0;
+    }
+    
+    return 1;  // それ以外は有効な文字境界
 }
 
 #ifdef  __cplusplus

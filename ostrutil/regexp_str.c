@@ -48,7 +48,7 @@ static const TCHAR *prev_char_str(const void *src, OREG_POINT *pt)
 	if(pt->row == 0 && pt->col == 1) {
 		pt->col--;
 	} else {
-		pt->col -= is_lead_byte2(p, pt->col - 2) ? 2 : 1;
+		pt->col -= get_prev_char_len(p);
 	}
 
 	if(*(p + pt->col) == '\r' && *(p + pt->col + 1) == '\n' &&

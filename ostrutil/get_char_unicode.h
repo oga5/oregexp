@@ -18,11 +18,11 @@ extern "C" {
 
 #include <tchar.h>
 
-#define LARGE_A			L'�`'
-#define LARGE_Z			L'�y'
-#define SMALL_A			L'��'
-#define SMALL_Z			L'��'
-#define ZENKAKU_SPACE	L'�@'
+#define LARGE_A			L'�`'
+#define LARGE_Z			L'�y'
+#define SMALL_A			L'��'
+#define SMALL_Z			L'��'
+#define ZENKAKU_SPACE	L'�@'
 
 __inline static unsigned int inline_ismblower(unsigned int ch)
 {
@@ -136,6 +136,22 @@ __inline static TCHAR *put_char(TCHAR *p, unsigned int ch)
 __inline static const TCHAR *get_prev_str(const TCHAR *p)
 {
 	return (is_low_surrogate(*(p - 1))) ? p - 2 : p - 1;
+}
+
+__inline static int get_prev_char_len(const TCHAR *p)
+{
+    const TCHAR *q = get_prev_str(p);
+	return p - q;
+}
+
+__inline static int is_mbstr_char_boundary(const TCHAR *p_start, const TCHAR *p)
+{
+    if(p_start == p) return 1;  // 文字列の先頭は常に有効
+    
+    // 下位サロゲート（0xDC00～0xDFFF）の場合、文字の途中
+    if(is_low_surrogate(*p)) return 0;
+    
+    return 1;  // それ以外は有効な文字境界
 }
 
 #ifdef  __cplusplus
