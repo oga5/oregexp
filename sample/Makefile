@@ -7,7 +7,7 @@ LIBS=
 
 LIBRARY=../ostrutil/ostrutil.a
 
-PROGRAMS=basic_match capture_groups string_replace callback_replace japanese_text
+PROGRAMS=basic_match capture_groups string_replace callback_replace japanese_text custom_datasource_simple
 OBJS=$(PROGRAMS:=.o)
 
 all: $(PROGRAMS)
@@ -25,6 +25,9 @@ callback_replace: callback_replace.o $(LIBRARY)
 	$(CC) $(LDFLAGS) -o $@ $< $(LIBRARY) $(LIBS)
 
 japanese_text: japanese_text.o $(LIBRARY)
+	$(CC) $(LDFLAGS) -o $@ $< $(LIBRARY) $(LIBS)
+
+custom_datasource_simple: custom_datasource_simple.o $(LIBRARY)
 	$(CC) $(LDFLAGS) -o $@ $< $(LIBRARY) $(LIBS)
 
 $(LIBRARY):

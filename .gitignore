@@ -8,6 +8,7 @@ sample/capture_groups
 sample/string_replace
 sample/callback_replace
 sample/japanese_text
+sample/custom_datasource_simple
 
 # バックアップファイル
 *.bak

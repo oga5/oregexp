@@ -54,6 +54,61 @@ Found Japanese match at position 0, length 12
 Found mixed-width match at position 3, length 3
 ```
 
+### custom_datasource_simple.c
+
+カスタムデータソースの実装例です。ファイルやメモリバッファから行単位で読み取りを行い、複数のパターンマッチングを実行する方法を示します。実際のカスタムデータソースAPIの使用例も含まれています。
+
+```
+$ ./custom_datasource_simple
+=== Custom Data Source Example (Simple Version) ===
+
+=== File Reading Test ===
+Line 1: Hello world
+Line 2: This is line 2
+  -> Found number at position 13, length 1: 2
+Line 3: Pattern matching test
+Line 4: Number: 12345
+  -> Found number at position 8, length 5: 12345
+Line 5: Email: test@example.com
+
+=== Buffer Processing Test ===
+Line 1: First line
+Line 2: Second line with email@test.com
+  -> Found email at position 17, length 14: email@test.com
+Line 3: Third line
+Line 4: Number 98765
+  -> Found number at position 7, length 5: 98765
+Line 5: Final line
+
+=== Multiple Pattern Test ===
+Test text: Hello world! This is a test. Number: 12345, Email: user@example.com
+
+Pattern '[0-9]+' (Number):
+  Found match at position 37, length 5: 12345
+
+Pattern '[a-zA-Z]+@[a-zA-Z0-9]+\.[a-zA-Z]+' (Email):
+  Found match at position 51, length 16: user@example.com
+
+Pattern '[Hh]ello' (Hello):
+  Found match at position 0, length 5: Hello
+
+Pattern '[Tt]est' (Test):
+  Found match at position 23, length 4: test
+
+=== String Replacement Test ===
+Original text: Replace 123 and 456 with numbers
+After replacement: Replace NUM and NUM with numbers
+
+All tests completed successfully!
+```
+
+このサンプルでは以下の機能を実演しています：
+- ファイルからの行単位での読み取り
+- メモリバッファからの行分割処理
+- 複数の正規表現パターンによるマッチング
+- 文字列置換機能
+- エラーハンドリング
+
 ## ビルド方法
 
 サンプルをビルドするには、プロジェクトのルートディレクトリで以下のコマンドを実行してください：
@@ -70,6 +125,7 @@ $ make sample/capture_groups
 $ make sample/string_replace
 $ make sample/callback_replace
 $ make sample/japanese_text
+$ make sample/custom_datasource_simple
 ```
 
 ## 注意事項
