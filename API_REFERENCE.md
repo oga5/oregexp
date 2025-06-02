@@ -64,6 +64,10 @@ struct oreg_data_point_st {
 テキストデータソースを表す構造体。様々な形式のテキストデータへのアクセスを抽象化します。
 文字列、ファイル、メモリバッファなど異なる種類のデータソースに対して統一的なインターフェースを提供します。
 
+この仕組みにより、oregexpは非連続のメモリ領域でテキストを管理するシステムでも効率的に動作できます。
+例えば、テキストエディタでよく使用されるgapped buffer、piece table、rope構造などの非連続メモリ構造でも、
+適切な関数ポインタを実装することで、連続領域にテキストをコピーすることなく正規表現検索を実行できます。
+
 ```c
 typedef struct oreg_datasrc_st *HREG_DATASRC;
 typedef struct oreg_datasrc_st OREG_DATASRC;
@@ -808,3 +812,187 @@ private:
     HREG_DATA m_regData;
 };
 ```
+
+### カスタムデータソースの実装
+
+OREG_DATASRCを使用して、非連続メモリ構造でもoregexpを使用できます。
+以下は、gapped bufferやpiece tableなどの非連続メモリでテキストを管理するエディタでの実装例です。
+
+#### Gapped Bufferの実装例
+
+Gapped bufferは、テキストエディタでよく使用される効率的なテキスト表現方法です：
+
+```c
+typedef struct gapped_buffer_st {
+    TCHAR *buffer;      // 実際のテキストバッファ
+    size_t buf_size;    // バッファサイズ
+    size_t gap_start;   // ギャップ開始位置
+    size_t gap_end;     // ギャップ終了位置
+    size_t text_len;    // 実際のテキスト長
+} GappedBuffer;
+
+// Gapped buffer用のORED_DATASRC関数の実装
+static const TCHAR *get_char_buf_gapped(const void *src, OREG_POINT *pt) {
+    GappedBuffer *gb = (GappedBuffer *)src;
+    size_t pos = pt->col;
+    
+    if (pos < gb->gap_start) {
+        return gb->buffer + pos;
+    } else {
+        // ギャップを跨いでアクセス
+        pos += (gb->gap_end - gb->gap_start);
+        if (pos >= gb->buf_size) {
+            static const TCHAR null_char = '\0';
+            return &null_char;
+        }
+        return gb->buffer + pos;
+    }
+}
+
+static const TCHAR *get_row_buf_gapped_len(const void *src, INT_PTR row, size_t *len) {
+    GappedBuffer *gb = (GappedBuffer *)src;
+    if (row > 0) return NULL;  // 単一行のみサポート
+    
+    *len = gb->text_len;
+    return gb->buffer;  // 実際の実装では行の開始位置を返す
+}
+
+static const TCHAR *next_char_gapped(const void *src, OREG_POINT *pt) {
+    GappedBuffer *gb = (GappedBuffer *)src;
+    size_t pos = pt->col;
+    
+    if (pos < gb->gap_start) {
+        pt->col++;
+        if (pt->col == gb->gap_start) {
+            // ギャップをスキップ
+            pt->col = gb->gap_end;
+        }
+    } else {
+        pt->col++;
+    }
+    
+    return get_char_buf_gapped(src, pt);
+}
+
+static const TCHAR *prev_char_gapped(const void *src, OREG_POINT *pt) {
+    GappedBuffer *gb = (GappedBuffer *)src;
+    
+    if (pt->col == 0) {
+        return NULL;
+    }
+    
+    pt->col--;
+    if (pt->col == gb->gap_start && gb->gap_start > 0) {
+        // ギャップの直前に戻る
+        pt->col = gb->gap_start - 1;
+    }
+    
+    return get_char_buf_gapped(src, pt);
+}
+
+static INT_PTR get_len_gapped(const void *src, OREG_POINT *start_pt, OREG_POINT *end_pt) {
+    GappedBuffer *gb = (GappedBuffer *)src;
+    size_t start_pos = start_pt->col;
+    size_t end_pos = end_pt->col;
+    size_t len = 0;
+    
+    // ギャップを考慮した長さ計算
+    if (start_pos < gb->gap_start && end_pos <= gb->gap_start) {
+        len = end_pos - start_pos;
+    } else if (start_pos >= gb->gap_start && end_pos >= gb->gap_start) {
+        len = end_pos - start_pos;
+    } else {
+        // ギャップを跨ぐ場合
+        len = (gb->gap_start - start_pos) + (end_pos - gb->gap_start);
+    }
+    
+    return len;
+}
+
+// OREG_DATASRCの初期化
+void oreg_make_gapped_datasrc(OREG_DATASRC *data_src, GappedBuffer *gb) {
+    memset(data_src, 0, sizeof(OREG_DATASRC));
+    data_src->src = gb;
+    data_src->get_char_buf = get_char_buf_gapped;
+    data_src->get_row_buf_len = get_row_buf_gapped_len;
+    data_src->next_char = next_char_gapped;
+    data_src->prev_char = prev_char_gapped;
+    data_src->get_len = get_len_gapped;
+    // その他の関数ポインタも必要に応じて設定
+}
+
+// 使用例
+int search_in_gapped_buffer(GappedBuffer *gb, const TCHAR *pattern) {
+    HREG_DATA reg = oreg_comp(pattern, 0);
+    if (!reg) return 0;
+    
+    OREG_DATASRC src;
+    oreg_make_gapped_datasrc(&src, gb);
+    
+    OREG_POINT search_start = {0, 0};
+    OREG_POINT search_end = {-1, -1};
+    OREG_POINT result_start, result_end;
+    
+    int result = oreg_exec(reg, &src, &search_start, &search_end, 
+                          &result_start, &result_end, 0);
+    
+    oreg_free(reg);
+    return result == OREGEXP_FOUND;
+}
+```
+
+#### Piece Tableの実装例
+
+Piece tableは、Microsoft Wordなどで使用される効率的なテキスト編集構造です：
+
+```c
+typedef struct piece_st {
+    int is_original;     // 元のバッファかどうか
+    size_t start;        // ピース内の開始位置
+    size_t length;       // ピースの長さ
+    struct piece_st *next;
+} Piece;
+
+typedef struct piece_table_st {
+    TCHAR *original;     // 元のテキストバッファ
+    TCHAR *added;        // 追加されたテキストバッファ
+    size_t added_size;
+    Piece *pieces;       // ピースのリスト
+    size_t total_length; // 総テキスト長
+} PieceTable;
+
+// Piece table用の関数実装
+static const TCHAR *get_char_buf_piece(const void *src, OREG_POINT *pt) {
+    PieceTable *pt_table = (PieceTable *)src;
+    size_t pos = pt->col;
+    size_t current_pos = 0;
+    
+    for (Piece *piece = pt_table->pieces; piece; piece = piece->next) {
+        if (pos >= current_pos && pos < current_pos + piece->length) {
+            size_t offset = pos - current_pos;
+            if (piece->is_original) {
+                return pt_table->original + piece->start + offset;
+            } else {
+                return pt_table->added + piece->start + offset;
+            }
+        }
+        current_pos += piece->length;
+    }
+    
+    static const TCHAR null_char = '\0';
+    return &null_char;
+}
+
+// その他の関数も同様に実装...
+
+void oreg_make_piece_datasrc(OREG_DATASRC *data_src, PieceTable *pt) {
+    memset(data_src, 0, sizeof(OREG_DATASRC));
+    data_src->src = pt;
+    data_src->get_char_buf = get_char_buf_piece;
+    // 他の関数ポインタを設定...
+}
+```
+
+これらの実装により、oregexpは連続したメモリ配置に依存せず、様々なテキスト管理構造で
+効率的に動作できます。テキストエディタの内部データ構造に関係なく、統一された
+正規表現インターフェースを提供できるのがORED_DATASRCの大きな利点です。
